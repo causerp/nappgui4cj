@@ -1,0 +1,20 @@
+[package]
+  cjc-version = "1.0.0"
+  name = "die"
+  description = "die example"
+  version = "1.0.0"
+  target-dir = ""
+  src-dir = ""
+  output-type = "executable"
+  compile-option = "--dy-std"
+  override-compile-option = "--dy-std"
+  link-option = ""
+  package-configuration = {}
+
+[dependencies]
+  casino = { path = "../casino" }
+  nappgui4cj = { path = "../../" }
+
+[target.x86_64-w64-mingw32]
+  compile-option = "./res/resource.o"
+  link-option = "--subsystem windows"

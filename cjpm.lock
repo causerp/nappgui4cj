@@ -1,0 +1,5 @@
+version = 0
+
+[requires]
+  cenum = {commitId = "a7e5301b3208b9db4e3eeef07ae4f81b338c4d88", git = "https://github.com/causerp/cenum.git", tag = "v1.1.2"}
+  ctemplate = {commitId = "66772eb46a6de65fbcca7f1e74e5a4c4dce83232", git = "https://github.com/causerp/ctemplate.git", tag = "v1.1.2"}

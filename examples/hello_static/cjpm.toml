@@ -1,0 +1,22 @@
+[package]
+  cjc-version = "1.0.0"
+  name = "hello_static"
+  description = "statically compiled hello world example"
+  version = "1.0.0"
+  target-dir = ""
+  src-dir = ""
+  output-type = "executable"
+  compile-option = "--disable-reflection --static-std -O1"
+  override-compile-option = "--disable-reflection --static-std -O1"
+  link-option = "-s"
+  package-configuration = {}
+
+[dependencies]
+  nappgui4cj = { path = "../../", output-type = "static" }
+
+[target.x86_64-unknown-linux-gnu]
+  compile-option = "--static"
+
+[target.x86_64-w64-mingw32]
+  compile-option = "./res/resource.o"
+  link-option = "--subsystem windows -lstdc++ -lgcc_s -lcomctl32 -lcomdlg32 -lgdi32 -lgdiplus -lshlwapi -luxtheme -lws2_32"
