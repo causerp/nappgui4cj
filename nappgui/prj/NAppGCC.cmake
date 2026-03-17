@@ -8,8 +8,8 @@
 #
 macro(nap_gcc_warns)
     set(FLAGS "")
-    set(CFLAGS "")
-    set(CXXFLAGS "")
+    set(CFLAGS "-fno-exceptions")
+    set(CXXFLAGS "-fno-exceptions")
 
     # Warn about non-ISO looking code, stricter checking for conformance testing
     # with one of the ANSI/ISO std options above. Issue all warnings demanded by

@@ -6,7 +6,7 @@
 macro(nap_clang_flags arch)
 
     # Warnings
-    set(FLAGS "-Wall -Wextra -pedantic -fPIE")
+    set(FLAGS "-Wall -Wextra -pedantic -fPIE -fno-exceptions")
     set(FLAGS "${FLAGS} -Wimplicit-function-declaration")
     set(FLAGS "${FLAGS} -Wunused")
     set(FLAGS "${FLAGS} -Wunused-function")

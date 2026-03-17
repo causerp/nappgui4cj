@@ -32,4 +32,4 @@
   link-option = "-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0"
 
 [target.x86_64-w64-mingw32]
-  link-option = "-lstdc++ -lgcc_s -lcomctl32 -lcomdlg32 -lgdi32 -lgdiplus -lshlwapi -luxtheme -lws2_32"
+  link-option = "-lc++ -lcomctl32 -lcomdlg32 -lgdi32 -lgdiplus -lshlwapi -luxtheme -lws2_32"
