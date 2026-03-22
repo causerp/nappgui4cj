@@ -11,9 +11,9 @@ foreign {
         argv: CPointer<CString>,
         instance: CPointer<Unit>,
         lframe: Float64,
-        func_create: CPointer<Unit>,
-        func_update: CPointer<Unit>,
-        func_destroy: CPointer<Unit>,
+        func_create: UIntNative,
+        func_update: UIntNative,
+        func_destroy: UIntNative,
         options: CString
     ): Unit
 }
@@ -37,40 +37,85 @@ public func osmain<T>(
     options!: String = String.empty
 ): Unit where T <: CType {
     osmain_sync(
-        onCreate: onCreate,
-        onUpdate: CPointer(),
-        onDestroy: onDestroy,
+        lframe: 0.0,
+        onCreate: CPointer<Unit>(onCreate).toUIntNative(),
+        onUpdate: CPointer<Unit>().toUIntNative(),
+        onDestroy: CPointer<Unit>(onDestroy).toUIntNative(),
         options: options
+    )
+}
+
+public func osmain(
+    onCreate!: CFunc<() -> UIntNative>,
+    onDestroy!: CFunc<(UIntNative) -> Unit>,
+    options!: String = String.empty
+): Unit {
+    osmain_sync(
+        lframe: 0.0,
+        onCreate: CPointer<Unit>(onCreate).toUIntNative(),
+        onUpdate: CPointer<Unit>().toUIntNative(),
+        onDestroy: CPointer<Unit>(onDestroy).toUIntNative(),
+        options: options
+    )
+}
+
+public func osmain_sync(
+    lframe!: Float64 = 0.0,
+    onCreate!: CFunc<() -> UIntNative>,
+    onUpdate!: CFunc<(UIntNative, Float64, Float64) -> Unit> = CPointer(),
+    onDestroy!: CFunc<(UIntNative) -> Unit>,
+    options!: String = String.empty
+): Unit {
+    osmain_sync(
+        lframe: lframe,
+        onCreate: CPointer<Unit>(onCreate).toUIntNative(),
+        onUpdate: CPointer<Unit>(onUpdate).toUIntNative(),
+        onDestroy: CPointer<Unit>(onDestroy).toUIntNative(),
+        options: options,
     )
 }
 
 public func osmain_sync<T>(
     lframe!: Float64 = 0.0,
     onCreate!: CFunc<() -> CPointer<T>>,
-    onUpdate!: CFunc<(CPointer<CPointer<T>>, Float64, Float64) -> Unit> = CPointer(),
+    onUpdate!: CFunc<(CPointer<T>, Float64, Float64) -> Unit> = CPointer(),
     onDestroy!: CFunc<(CPointer<CPointer<T>>) -> Unit>,
     options!: String = String.empty
 ): Unit where T <: CType {
-    unsafe {
-        let optionsStrPtr = LibC.mallocCString(options)
+    osmain_sync(
+        lframe: lframe,
+        onCreate: CPointer<Unit>(onCreate).toUIntNative(),
+        onUpdate: CPointer<Unit>(onUpdate).toUIntNative(),
+        onDestroy: CPointer<Unit>(onDestroy).toUIntNative(),
+        options: options,
+    )
+}
 
+private func osmain_sync(
+    lframe!: Float64,
+    onCreate!: UIntNative,
+    onUpdate!: UIntNative,
+    onDestroy!: UIntNative,
+    options!: String
+): Unit {
+    unsafe {
         @When[os == "Windows"]
         let instance = GetModuleHandleW(CPointer())
 
         @When[os != "Windows"]
         let instance = CPointer<Unit>()
 
+        let optionsStrPtr = LibC.mallocCString(options)
         osmain_imp(
             0, // argc
             CPointer(), // argv
             instance,
             lframe,
-            CPointer(onCreate),
-            CPointer(onUpdate),
-            CPointer(onDestroy),
+            onCreate,
+            onUpdate,
+            onDestroy,
             optionsStrPtr
         )
-
         LibC.free(optionsStrPtr)
     }
 }

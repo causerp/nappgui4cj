@@ -60,7 +60,7 @@ public struct Label {
         }
     }
 
-    public func onClick<T>(obj: CPointer<T>, function: EventHandlerFunc<T>): Unit where T <: CType {
+    public func onClick<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
         let listener = Listener.create<T>(obj, function)
         unsafe { label_OnClick(this, listener) }
     }

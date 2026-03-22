@@ -38,24 +38,54 @@ public struct Event {
         unsafe { event_type(handle) }
     }
 
-    public func getSender<T>(typeName!: CString = CString(CPointer())): CPointer<T> where T <: CType {
+    public func getSender<T>(typeName!: CString = CString(CPointer())): T where T <: CType {
+        unsafe {
+            let ptr = event_sender_imp(handle, typeName)
+            return CPointer<T>(ptr).read()
+        }
+    }
+
+    public func getSenderPtr<T>(typeName!: CString = CString(CPointer())): CPointer<T> where T <: CType {
         unsafe {
             let ptr = event_sender_imp(handle, typeName)
             return CPointer<T>(ptr)
         }
     }
 
-    public func getParams<T>(typeName!: CString = CString(CPointer())): CPointer<T> where T <: CType {
+    public func getParams<T>(typeName!: CString = CString(CPointer())): T where T <: CType {
+        unsafe {
+            let ptr = event_params_imp(handle, typeName)
+            return CPointer<T>(ptr).read()
+        }
+    }
+
+    public func getParamsPtr<T>(typeName!: CString = CString(CPointer())): CPointer<T> where T <: CType {
         unsafe {
             let ptr = event_params_imp(handle, typeName)
             return CPointer<T>(ptr)
         }
     }
 
-    public func getResult<T>(typeName!: CString = CString(CPointer())): CPointer<T> where T <: CType {
+    public func getResult<T>(typeName!: CString = CString(CPointer())): T where T <: CType {
+        unsafe {
+            let ptr = event_result_imp(handle, typeName)
+            return CPointer<T>(ptr).read()
+        }
+    }
+
+    public func getResultPtr<T>(typeName!: CString = CString(CPointer())): CPointer<T> where T <: CType {
         unsafe {
             let ptr = event_result_imp(handle, typeName)
             return CPointer<T>(ptr)
+        }
+    }
+
+    public func setResult<T>(value: T, typeName!: CString = CString(CPointer())): Unit where T <: CType {
+        unsafe {
+            let ptr = CPointer<T>(event_result_imp(handle, typeName))
+            if (ptr.isNotNull()) {
+                ptr.write(value)
+            }
         }
     }
 }

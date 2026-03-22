@@ -1,6 +1,7 @@
 package nappgui4cj
 
 import ctemplate.Template
+import std.math.sqrt
 
 /**
  * Class template for manipulating 2-dimensional vectors.
@@ -232,6 +233,28 @@ public struct ClassName {
      */
     public const func lengthSquared(): NumType {
         return x * x + y * y
+    }
+
+    /**
+     * @brief Length of the vector.
+     *
+     * If you are not interested in the actual length, but only in comparisons, consider using `lengthSquared()`.
+     */
+    public func length(): NumType {
+        return NumType(sqrt(Float64(x * x + y * y)))
+    }
+
+    /**
+     * @brief Vector with same direction but length 1.
+     *
+     * @pre `this` is no zero vector.
+     */
+    public func normalized(): ClassName {
+        let len = length()
+        if (len != 0.0) {
+            return ClassName(x / len, y / len)
+        }
+        return ClassName()
     }
 
     /**

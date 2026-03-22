@@ -11,9 +11,41 @@ foreign {
 
     func window_show(window: CPointer<Unit>): Unit
 
+    func window_hide(window: CPointer<Unit>): Unit
+
     func window_OnClose(window: CPointer<Unit>, listener: Listener): Unit
 
+    func window_OnMoved(window: CPointer<Unit>, listener: Listener): Unit
+
+    func window_OnResize(window: CPointer<Unit>, listener: Listener): Unit
+
     func window_origin(window: CPointer<Unit>, origin: V2Df): Unit
+
+    func window_get_origin(window: CPointer<Unit>): V2Df
+
+    func window_client_size(window: CPointer<Unit>, size: S2Df): Unit
+
+    func window_get_size(window: CPointer<Unit>): S2Df
+
+    func window_get_client_size(window: CPointer<Unit>): S2Df
+
+    func window_get_maximize(window: CPointer<Unit>): Bool
+
+    func window_maximize(window: CPointer<Unit>): Unit
+
+    func window_get_minimize(window: CPointer<Unit>): Bool
+
+    func window_minimize(window: CPointer<Unit>): Unit
+
+    func window_update(window: CPointer<Unit>): Unit
+
+    func window_overlay(window: CPointer<Unit>, parent: CPointer<Unit>): Unit
+
+    func window_modal(window: CPointer<Unit>, parent: CPointer<Unit>): UInt32
+
+    func window_stop_modal(window: CPointer<Unit>, return_value: UInt32): Unit
+
+    func window_defbutton(window: CPointer<Unit>, button: Button): Unit
 }
 
 @C
@@ -32,6 +64,10 @@ public struct Window {
 
     public mut func destroy(): Unit {
         unsafe { window_destroy(inout m_handle) }
+    }
+
+    public func isNull(): Bool {
+        m_handle.isNull()
     }
 
     public func setTitle(id: ResId): Unit {
@@ -56,12 +92,78 @@ public struct Window {
         unsafe { window_show(m_handle) }
     }
 
+    public func hide(): Unit {
+        unsafe { window_hide(m_handle) }
+    }
+
     public func setOrigin(origin: V2Df): Unit {
         unsafe { window_origin(m_handle, origin) }
     }
 
-    public func onClose<T>(obj: CPointer<T>, function: EventHandlerFunc<T>): Unit where T <: CType {
+    public func getOrigin(): V2Df {
+        unsafe { window_get_origin(m_handle) }
+    }
+
+    public func setClientSize(size: S2Df): Unit {
+        unsafe { window_client_size(m_handle, size) }
+    }
+
+    public func getSize(): S2Df {
+        unsafe { window_get_size(m_handle) }
+    }
+
+    public func getClientSize(): S2Df {
+        unsafe { window_get_client_size(m_handle) }
+    }
+
+    public func maximize(): Unit {
+        unsafe { window_maximize(m_handle) }
+    }
+
+    public func isMaximized(): Bool {
+        unsafe { window_get_maximize(m_handle) }
+    }
+
+    public func minimize(): Unit {
+        unsafe { window_minimize(m_handle) }
+    }
+
+    public func isMinimized(): Bool {
+        unsafe { window_get_minimize(m_handle) }
+    }
+
+    public func update(): Unit {
+        unsafe { window_update(m_handle) }
+    }
+
+    public func overlay(parent: Window): Unit {
+        unsafe { window_overlay(m_handle, parent.m_handle) }
+    }
+
+    public func runModal(parent: Window): UInt32 {
+        unsafe { window_modal(m_handle, parent.m_handle) }
+    }
+
+    public func stopModal(returnValue: UInt32): Unit {
+        unsafe { window_stop_modal(m_handle, returnValue) }
+    }
+
+    public func setDefaultButton(button: Button): Unit {
+        unsafe { window_defbutton(m_handle, button) } // Button implicitly converts to CPointer<Unit>
+    }
+
+    public func onClose<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
         let listener = Listener.create<T>(obj, function)
         unsafe { window_OnClose(m_handle, listener) }
+    }
+
+    public func onMoved<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
+        let listener = Listener.create<T>(obj, function)
+        unsafe { window_OnMoved(m_handle, listener) }
+    }
+
+    public func onResize<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
+        let listener = Listener.create<T>(obj, function)
+        unsafe { window_OnResize(m_handle, listener) }
     }
 }

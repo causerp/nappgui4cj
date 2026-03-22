@@ -38,7 +38,7 @@ public struct PopUp {
         m_handle = unsafe { popup_create() }
     }
 
-    public func onSelect<T>(obj: CPointer<T>, function: EventHandlerFunc<T>): Unit where T <: CType {
+    public func onSelect<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
         let listener = Listener.create<T>(obj, function)
         unsafe { popup_OnSelect(this, listener) }
     }

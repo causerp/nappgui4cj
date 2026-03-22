@@ -17,4 +17,6 @@
 
 [target.x86_64-w64-mingw32]
   compile-option = "./res/resource.o"
+
+[target.x86_64-w64-mingw32.release]
   link-option = "--subsystem windows"

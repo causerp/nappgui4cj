@@ -190,10 +190,8 @@ class MsgParser {
             // Jump blanks again between ID and text
             pos = jumpBlanksAndComments(chars, pos, eof, line, filepath, pack.errors)
             if (pos >= eof) {
-                pack
-                    .errors
-                    .add(
-                        "MsgError (${filepath.fileName}:${line}): Unexpected end of file after string ID (${filepath}).")
+                pack.errors.add(
+                    "MsgError (${filepath.fileName}:${line}): Unexpected end of file after string ID (${filepath}).")
                 return
             }
 
@@ -281,7 +279,7 @@ class MsgParser {
         return c == r" " || c == r"\t" || c == r"\n" || c == r"\r"
     }
 
-    private func readId(chars: Array<Rune>, start: Int, eof: Int, line: Int, path: Path, errors: ArrayList<String>): (String,
+    private func readId(chars: Array<Rune>, start: Int, eof: Int, line: Int, path: Path, errors: ArrayList<String>): (String, 
         Int, Int) {
         var pos = start
         if (pos >= eof) {
@@ -489,39 +487,29 @@ private func generateResourceId(resName: String, res: Resource): Tokens {
 }
 
 /**
+ * Generates a VArray from byte Array. Adds line breaks to better handle big files.
+ */
+private func generateVArray(resName: String, bytes: Array<UInt8>): Tokens {
+    let name = Token(IDENTIFIER, resName)
+    return quote(var $(name): VArray<UInt8, \$$(bytes.size)> = $(bytes)
+    )
+}
+
+/**
  * Generates data constants for messages, files and images.
  */
 private func generateResourceData(res: Resource): Tokens {
     let output = quote()
     match (res.kind) {
         case Message =>
-            // Default text
-            let name = Token(IDENTIFIER, "${res.name}_TEXT")
-            let value = res.globalText.toArray().concat(0)
-            output.append(quote(var $(name): VArray<UInt8, \$$(value.size)> = $(value)))
-            output.append(Token(TokenKind.NL))
-
-            // Localized text
+            output.append(generateVArray("${res.name}_TEXT", res.globalText.toArray().concat(0)))
             for (locale in res.locales) {
-                let name = Token(IDENTIFIER, "${res.name}_${locale.localeCode}_TEXT")
-                let value = locale.text.toArray().concat(0)
-                output.append(quote(var $(name): VArray<UInt8, \$$(value.size)> = $(value)))
-                output.append(Token(TokenKind.NL))
+                output.append(generateVArray("${res.name}_${locale.localeCode}_TEXT", locale.text.toArray().concat(0)))
             }
         case Image | File =>
-            // Default data
-            let name = Token(IDENTIFIER, "${res.name}_DATA")
-            let value = res.globalData
-            // Using specific VArray syntax requested
-            output.append(quote(var $(name): VArray<UInt8, \$$(value.size)> = $(value)))
-            output.append(Token(TokenKind.NL))
-
-            // Localized data
+            output.append(generateVArray("${res.name}_DATA", res.globalData))
             for (locale in res.locales) {
-                let name = Token(IDENTIFIER, "${res.name}_${locale.localeCode}_DATA")
-                let value = locale.data
-                output.append(quote(var $(name): VArray<UInt8, \$$(value.size)> = $(value)))
-                output.append(Token(TokenKind.NL))
+                output.append(generateVArray("${res.name}_${locale.localeCode}_DATA", locale.data))
             }
     }
     return output
@@ -571,7 +559,7 @@ private func generateRespackFunction(resName: String, pack: ResourcePack): Token
 
                 // If we are in a locale context, check if a localized file exists
                 if (!localeCode.isEmpty()) {
-                    let found = res.locales |> filter({ l => l.localeCode == localeCode })
+                    let found = res.locales |> filter({l => l.localeCode == localeCode})
                     if (let Some(loc) <- found.next()) {
                         varName = Token(IDENTIFIER, "${res.name}_${localeCode}_DATA")
                         varSize = Token(IDENTIFIER, "${res.name}_${localeCode}_DATA.size")

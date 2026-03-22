@@ -1,0 +1,21 @@
+[package]
+  cjc-version = "1.0.0"
+  name = "drawhello"
+  description = "drawhello example"
+  version = "1.0.0"
+  target-dir = ""
+  src-dir = ""
+  output-type = "executable"
+  compile-option = "--dy-std"
+  override-compile-option = "--dy-std"
+  link-option = ""
+  package-configuration = {}
+
+[dependencies]
+  nappgui4cj = { path = "../../" }
+
+[target.x86_64-w64-mingw32]
+  compile-option = "./res/resource.o"
+
+[target.x86_64-w64-mingw32.release]
+  link-option = "--subsystem windows"

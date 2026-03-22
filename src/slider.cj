@@ -42,7 +42,7 @@ public struct Slider {
         unsafe { slider_vertical() }
     }
 
-    public func onMoved<T>(obj: CPointer<T>, function: EventHandlerFunc<T>): Unit where T <: CType {
+    public func onMoved<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
         let listener = Listener.create<T>(obj, function)
         unsafe { slider_OnMoved(this, listener) }
     }

@@ -3,9 +3,9 @@ package nappgui4cj
 foreign {
     func imageview_create(): CPointer<Unit>
 
-    func imageview_size(view: ImageView, width: Float32, height: Float32): Unit
+    func imageview_size(view: ImageView, size: S2Df): Unit
 
-    func imageview_scale(view: ImageView, scale: UInt32): Unit
+    func imageview_scale(view: ImageView, scale: GUIScale): Unit
 
     func imageview_image(view: ImageView, image: CPointer<Unit>): Unit
 
@@ -24,21 +24,20 @@ public struct ImageView {
         m_handle = unsafe { imageview_create() }
     }
 
-    public func setSize(width: Float32, height: Float32): Unit {
-        unsafe { imageview_size(this, width, height) }
+    public func setSize(size: S2Df): Unit {
+        unsafe { imageview_size(this, size) }
     }
 
-    public func setScale(scale: UInt32): Unit {
+    public func setScale(scale: GUIScale): Unit {
         unsafe { imageview_scale(this, scale) }
     }
 
-    public func setImage(image: ?Image): Unit {
-        unsafe {
-            match (image) {
-                case Some(image) => imageview_image(this, image.handle)
-                case None => imageview_image(this, CPointer())
-            }
-        }
+    public func clearImage(): Unit {
+        unsafe { imageview_image(this, CPointer()) }
+    }
+
+    public func setImage(image: Image): Unit {
+        unsafe { imageview_image(this, image.handle) }
     }
 
     public func setImage(id: ResId): Unit {
@@ -47,12 +46,12 @@ public struct ImageView {
         }
     }
 
-    public func onClick<T>(obj: CPointer<T>, function: EventHandlerFunc<T>): Unit where T <: CType {
+    public func onClick<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
         let listener = Listener.create<T>(obj, function)
         unsafe { imageview_OnClick(this, listener) }
     }
 
-    public func onOverDraw<T>(obj: CPointer<T>, function: EventHandlerFunc<T>): Unit where T <: CType {
+    public func onOverDraw<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
         let listener = Listener.create<T>(obj, function)
         unsafe { imageview_OnOverDraw(this, listener) }
     }

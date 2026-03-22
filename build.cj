@@ -1,5 +1,6 @@
+import std.collection.ArrayList
 import std.process.{launch, ProcessRedirect}
-import std.fs.Path
+import std.fs.{Directory, exists, FileInfo, Path, removeIfExists}
 
 @When[os == "Windows"]
 private const CHECK_CMD = "where"
@@ -21,11 +22,11 @@ private func commandExists(name: String): Bool {
     return process.wait() == 0
 }
 
-private func runCommand(cmd: String, args: Array<String>): Int64 {
+private func runCommand(cmd: String, args: Array<String>, cwd!: ?Path = None): Int64 {
     let process = launch(
         cmd,
         args,
-        workingDirectory: Path(LIBRARY_PATH)
+        workingDirectory: cwd
     )
     return process.wait()
 }
@@ -59,11 +60,11 @@ private func stagePreBuild(): Int64 {
     }
 
     let configureArgs = generatorArgs.concat(["--preset", preset])
-    let ret = runCommand("cmake", configureArgs)
+    let ret = runCommand("cmake", configureArgs, cwd: Path(LIBRARY_PATH))
     if (ret != 0) {
         return ret
     }
-    return runCommand("cmake", ["--build", "--preset", preset])
+    return runCommand("cmake", ["--build", "--preset", preset], cwd: Path(LIBRARY_PATH))
 }
 
 main(args: Array<String>): Int64 {

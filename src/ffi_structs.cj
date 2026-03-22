@@ -392,44 +392,6 @@ public struct Seg2Df {
 }
 
 @C
-public struct T2Dd {
-    public var i: V2Dd
-    public var j: V2Dd
-    public var p: V2Dd
-
-    public init() {
-        i = V2Dd()
-        j = V2Dd()
-        p = V2Dd()
-    }
-
-    public init(i: V2Dd, j: V2Dd, p: V2Dd) {
-        this.i = i
-        this.j = j
-        this.p = p
-    }
-}
-
-@C
-public struct T2Df {
-    public var i: V2Df
-    public var j: V2Df
-    public var p: V2Df
-
-    public init() {
-        i = V2Df()
-        j = V2Df()
-        p = V2Df()
-    }
-
-    public init(i: V2Df, j: V2Df, p: V2Df) {
-        this.i = i
-        this.j = j
-        this.p = p
-    }
-}
-
-@C
 public struct Tri2Dd {
     public var p0: V2Dd
     public var p1: V2Dd

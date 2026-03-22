@@ -13,7 +13,7 @@ foreign {
 
     func layout_popup(layout: Layout, popup: PopUp, col: UInt32, row: UInt32): Unit
 
-    func layout_edit(layout: Layout, edit: CPointer<Unit>, col: UInt32, row: UInt32): Unit
+    func layout_edit(layout: Layout, edit: Edit, col: UInt32, row: UInt32): Unit
 
     func layout_combo(layout: Layout, combo: CPointer<Unit>, col: UInt32, row: UInt32): Unit
 
@@ -146,6 +146,10 @@ public struct Layout {
         m_handle = unsafe { layout_create(nCols, nRows) }
     }
 
+    public func createCell(col: UInt32, row: UInt32): Cell {
+        Cell(this, col, row)
+    }
+
     // Getters for dimensions
 
     public func numCols(): UInt32 {
@@ -174,6 +178,10 @@ public struct Layout {
 
     public func add(obj: PopUp, col: UInt32, row: UInt32): Unit {
         unsafe { layout_popup(this, obj, col, row) }
+    }
+
+    public func add(obj: Edit, col: UInt32, row: UInt32): Unit {
+        unsafe { layout_edit(this, obj, col, row) }
     }
 
     public func add(obj: Slider, col: UInt32, row: UInt32): Unit {
@@ -226,8 +234,24 @@ public struct Layout {
         unsafe { layout_hexpand(this, col) }
     }
 
+    public func hExpand2(col1: UInt32, col2: UInt32, exp: Float32): Unit {
+        unsafe { layout_hexpand2(this, col1, col2, exp) }
+    }
+
+    public func hExpand3(col1: UInt32, col2: UInt32, col3: UInt32, exp1: Float32, exp2: Float32): Unit {
+        unsafe { layout_hexpand3(this, col1, col2, col3, exp1, exp2) }
+    }
+
     public func vExpand(row: UInt32): Unit {
         unsafe { layout_vexpand(this, row) }
+    }
+
+    public func vExpand2(row1: UInt32, row2: UInt32, exp: Float32): Unit {
+        unsafe { layout_vexpand2(this, row1, row2, exp) }
+    }
+
+    public func vExpand3(row1: UInt32, row2: UInt32, row3: UInt32, exp1: Float32, exp2: Float32): Unit {
+        unsafe { layout_vexpand3(this, row1, row2, row3, exp1, exp2) }
     }
 
     // Alignment

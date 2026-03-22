@@ -3,7 +3,7 @@ package nappgui4cj
 foreign {
     func dctx_bitmap(width: UInt32, height: UInt32, format: PixFormat): CPointer<Unit>
 
-    func dctx_image(ctx: CPointer<CPointer<Unit>>): CPointer<Unit>
+    func dctx_image(ctx: CPointer<CPointer<Unit>>): Image
 
     func draw_clear(ctx: DCtx, color: Color): Unit
 
@@ -57,7 +57,7 @@ foreign {
 
     func draw_fill_wrap(ctx: DCtx, wrap: FillWrap): Unit
 
-    func draw_font(ctx: DCtx, font: CPointer<Unit>): Unit
+    func draw_font(ctx: DCtx, font: Font): Unit
 
     func draw_text_color(ctx: DCtx, color: Color): Unit
 
@@ -76,9 +76,9 @@ foreign {
     func draw_text_extents(ctx: DCtx, text: CString, refwidth: Float32, width: CPointer<Float32>,
         height: CPointer<Float32>): Unit
 
-    func draw_image(ctx: DCtx, image: CPointer<Unit>, x: Float32, y: Float32): Unit
+    func draw_image(ctx: DCtx, image: Image, x: Float32, y: Float32): Unit
 
-    func draw_image_frame(ctx: DCtx, image: CPointer<Unit>, frame: UInt32, x: Float32, y: Float32): Unit
+    func draw_image_frame(ctx: DCtx, image: Image, frame: UInt32, x: Float32, y: Float32): Unit
 
     func draw_image_align(ctx: DCtx, halign: Align, valign: Align): Unit
 }
@@ -93,6 +93,10 @@ public struct DCtx {
 
     public init(width: UInt32, height: UInt32, format: PixFormat) {
         m_handle = unsafe { dctx_bitmap(width, height, format) }
+    }
+
+    public mut func toImage(): Image {
+        unsafe { dctx_image(inout m_handle) }
     }
 
     public func clear(color: Color): Unit {
@@ -135,12 +139,13 @@ public struct DCtx {
         unsafe { draw_line(this, x0, y0, x1, y1) }
     }
 
-    // public func drawPolyline(closed: Bool, points: Array<V2Df>): Unit {
-    //     unsafe {
-    //         var arr = points
-    //         draw_polyline(this, closed, &arr, UInt32(arr.size))
-    //     }
-    // }
+    public func drawPolyline(points: Array<V2Df>, closed!: Bool = false): Unit {
+        unsafe {
+            let rawData = acquireArrayRawData(points)
+            draw_polyline(this, closed, rawData.pointer, UInt32(points.size))
+            releaseArrayRawData(rawData)
+        }
+    }
 
     public func drawArc(x: Float32, y: Float32, radius: Float32, start: Float32, sweep: Float32): Unit {
         unsafe { draw_arc(this, x, y, radius, start, sweep) }
@@ -171,12 +176,17 @@ public struct DCtx {
         unsafe { draw_line_join(this, join) }
     }
 
-    // public func setLineDash(pattern: Array<Float32>): Unit {
-    //     unsafe {
-    //         var arr = pattern
-    //         draw_line_dash(this, &arr, UInt32(arr.size))
-    //     }
-    // }
+    public func setLineDash(pattern!: ?Array<Float32> = None): Unit {
+        unsafe {
+            match (pattern) {
+                case Some(pattern) =>
+                    let rawData = acquireArrayRawData(pattern)
+                    draw_line_dash(this, rawData.pointer, UInt32(pattern.size))
+                    releaseArrayRawData(rawData)
+                case None => draw_line_dash(this, CPointer(), 0)
+            }
+        }
+    }
 
     public func drawRect(op: DrawOp, x: Float32, y: Float32, width: Float32, height: Float32): Unit {
         unsafe { draw_rect(this, op, x, y, width, height) }
@@ -194,24 +204,32 @@ public struct DCtx {
         unsafe { draw_ellipse(this, op, x, y, radx, rady) }
     }
 
-    // public func drawPolygon(op: DrawOp, points: Array<V2Df>): Unit {
-    //     unsafe {
-    //         var arr = points
-    //         draw_polygon(this, op, &arr, UInt32(arr.size))
-    //     }
-    // }
+    public func drawPolygon(op: DrawOp, points: Array<V2Df>): Unit {
+        unsafe {
+            let rawData = acquireArrayRawData(points)
+            draw_polygon(this, op, rawData.pointer, UInt32(points.size))
+            releaseArrayRawData(rawData)
+        }
+    }
 
     public func setFillColor(color: Color): Unit {
         unsafe { draw_fill_color(this, color) }
     }
 
-    // public func setFillLinear(colors: Array<Color>, stops: Array<Float32>, x0: Float32, y0: Float32, x1: Float32, y1: Float32): Unit {
-    //     unsafe {
-    //         var c = colors
-    //         var s = stops
-    //         draw_fill_linear(this, &c, &s, UInt32(c.size), x0, y0, x1, y1)
-    //     }
-    // }
+    public func setFillLinear(colors: Array<Color>, stops: Array<Float32>, x0: Float32, y0: Float32, x1: Float32,
+        y1: Float32): Unit {
+        unsafe {
+            let size = match {
+                case colors.size < stops.size => UInt32(colors.size)
+                case _ => UInt32(stops.size)
+            }
+            let rawColors = acquireArrayRawData(colors)
+            let rawStops = acquireArrayRawData(stops)
+            draw_fill_linear(this, rawColors.pointer, rawStops.pointer, size, x0, y0, x1, y1)
+            releaseArrayRawData(rawColors)
+            releaseArrayRawData(rawStops)
+        }
+    }
 
     public func setFillMatrix(t2d: T2Df): Unit {
         unsafe {
@@ -224,7 +242,7 @@ public struct DCtx {
         unsafe { draw_fill_wrap(this, wrap) }
     }
 
-    public func setFont(font: CPointer<Unit>): Unit {
+    public func setFont(font: Font): Unit {
         unsafe { draw_font(this, font) }
     }
 
@@ -264,22 +282,22 @@ public struct DCtx {
         unsafe { draw_text_halign(this, halign) }
     }
 
-    // public func getTextExtents(text: String, refwidth: Float32): (Float32, Float32) {
-    //     unsafe {
-    //         let strPtr = LibC.mallocCString(text)
-    //         var w: Float32 = 0.0
-    //         var h: Float32 = 0.0
-    //         draw_text_extents(this, strPtr, refwidth, &w, &h)
-    //         LibC.free(strPtr)
-    //         return (w, h)
-    //     }
-    // }
+    public func textExtents(text: String, refwidth: Float32): (Float32, Float32) {
+        unsafe {
+            let strPtr = LibC.mallocCString(text)
+            var w: Float32 = 0.0
+            var h: Float32 = 0.0
+            draw_text_extents(this, strPtr, refwidth, inout w, inout h)
+            LibC.free(strPtr)
+            return (w, h)
+        }
+    }
 
-    public func drawImage(image: CPointer<Unit>, x: Float32, y: Float32): Unit {
+    public func drawImage(image: Image, x: Float32, y: Float32): Unit {
         unsafe { draw_image(this, image, x, y) }
     }
 
-    public func drawImageFrame(image: CPointer<Unit>, frame: UInt32, x: Float32, y: Float32): Unit {
+    public func drawImageFrame(image: Image, frame: UInt32, x: Float32, y: Float32): Unit {
         unsafe { draw_image_frame(this, image, frame, x, y) }
     }
 

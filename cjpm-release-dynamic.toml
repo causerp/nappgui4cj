@@ -1,0 +1,35 @@
+[package]
+  cjc-version = "1.0.5"
+  name = "nappgui4cj"
+  description = "nappgui4cj is a NAppGUI wrapper library to build portable desktop applications for Windows, macOS and Linux"
+  version = "1.0.0"
+  target-dir = ""
+  src-dir = ""
+  output-type = "dynamic"
+  compile-option = "--dy-std -O1"
+  override-compile-option = ""
+  link-option = ""
+  package-configuration = {}
+
+[dependencies]
+  cenum = { git = "https://github.com/causerp/cenum.git", tag = "v1.1.2"}
+  ctemplate = { git = "https://github.com/causerp/ctemplate.git", tag = "v1.1.2"}
+
+[ffi.c]
+  core = { path = "./nappgui/build/Release/lib" }
+  draw2d = { path = "./nappgui/build/Release/lib" }
+  geom2d = { path = "./nappgui/build/Release/lib" }
+  gui = { path = "./nappgui/build/Release/lib" }
+  osapp = { path = "./nappgui/build/Release/lib" }
+  osbs = { path = "./nappgui/build/Release/lib" }
+  osgui = { path = "./nappgui/build/Release/lib" }
+  sewer = { path = "./nappgui/build/Release/lib" }
+
+[target.aarch64-unknown-linux-gnu]
+  link-option = "-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0"
+
+[target.x86_64-unknown-linux-gnu]
+  link-option = "-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0"
+
+[target.x86_64-w64-mingw32]
+  link-option = "-lc++ -lcomctl32 -lcomdlg32 -lgdi32 -lgdiplus -lshlwapi -luxtheme -lws2_32"
