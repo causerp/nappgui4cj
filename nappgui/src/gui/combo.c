@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -135,7 +135,7 @@ void combo_OnSelect(Combo *combo, Listener *listener)
 
 /*---------------------------------------------------------------------------*/
 
-void combo_min_width(Combo *combo, const real32_t width)
+void combo_width(Combo *combo, const real32_t width)
 {
     cassert_no_null(combo);
     cassert(width > 0);

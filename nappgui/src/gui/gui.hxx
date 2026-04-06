@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -43,6 +43,7 @@ typedef struct _splitview_t SplitView;
 typedef struct _layout_t Layout;
 typedef struct _cell_t Cell;
 typedef struct _panel_t Panel;
+typedef struct _line_t Line;
 typedef struct _window_t Window;
 typedef struct _menu_t Menu;
 typedef struct _menu_item_t MenuItem;

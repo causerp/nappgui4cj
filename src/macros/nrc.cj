@@ -1,4 +1,4 @@
-macro package nappgui4cj.nrc
+macro package nappgui4cj.macros
 
 import std.fs.*
 import std.collection.*
@@ -279,7 +279,7 @@ class MsgParser {
         return c == r" " || c == r"\t" || c == r"\n" || c == r"\r"
     }
 
-    private func readId(chars: Array<Rune>, start: Int, eof: Int, line: Int, path: Path, errors: ArrayList<String>): (String, 
+    private func readId(chars: Array<Rune>, start: Int, eof: Int, line: Int, path: Path, errors: ArrayList<String>): (String,
         Int, Int) {
         var pos = start
         if (pos >= eof) {
@@ -415,11 +415,6 @@ class NrcProcessor {
             return
         }
 
-        if (!isResourceFile(ext)) {
-            pack.warnings.add("Ignored resource file '${filepath}' (Unknown type).")
-            return
-        }
-
         let resKind = getResourceKind(ext)
 
         // Load binary data
@@ -539,7 +534,7 @@ private func generateRespackFunction(resName: String, pack: ResourcePack): Token
         for (res in pack.resources) {
             if (res.kind == ResourceType.Message) {
                 let varName = Token(IDENTIFIER, "${res.name}${sep}${localeSuffix}_TEXT")
-                body.append(quote(resPackAddMsg(pack, inout $(varName))))
+                body.append(quote(resPackAddMsg(pack.handle, inout $(varName))))
                 body.append(Token(TokenKind.NL))
             }
         }
@@ -566,7 +561,7 @@ private func generateRespackFunction(resName: String, pack: ResourcePack): Token
                     }
                 }
 
-                body.append(quote(resPackAddCData(pack, ResType.$(resType), inout $(varName), UInt32($(varSize)))))
+                body.append(quote(resPackAddCData(pack.handle, ResType.$(resType), inout $(varName), UInt32($(varSize)))))
                 body.append(Token(TokenKind.NL))
             }
         }
@@ -617,15 +612,19 @@ private func generateRespackFunction(resName: String, pack: ResourcePack): Token
 
     // 7. Assemble final function
     return quote(
-        @C
-        func $(funcName)(locale: CString): ResPack {
+        func $(funcName)(locale: String): ResPack {
             unsafe {
-                let pack = ResPack.createEmbedded($(embedName))
-                match (locale.toString()) {
+                let pack = ResPack(ResEmbedded($(embedName)))
+                match (locale) {
                     $(matchBody)
                 }
                 return pack
             }
+        }
+
+        @C
+        func $(funcName)(locale: CString): CPointer<Unit> {
+            return $(funcName)(locale.toString()).handle
         }
     )
 }
@@ -666,10 +665,15 @@ public macro NRC(inputTokens: Tokens) {
     let processor = NrcProcessor()
     let pack = processor.process(resPath)
 
-    // 4. Check for errors found during processing
+    // 4. Check for warnings and errors found during processing
+    if (pack.warnings.size > 0) {
+        for (warning in pack.warnings) {
+            diagReport(DiagReportLevel.WARNING, inputTokens, "Resource Error", warning)
+        }
+    }
     if (pack.errors.size > 0) {
-        for (err in pack.errors) {
-            diagReport(DiagReportLevel.ERROR, inputTokens, "Resource Error", err)
+        for (error in pack.errors) {
+            diagReport(DiagReportLevel.ERROR, inputTokens, "Resource Error", error)
         }
     }
 

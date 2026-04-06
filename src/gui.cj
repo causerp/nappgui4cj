@@ -1,11 +1,13 @@
 package nappgui4cj
 
+import nappgui4cj.macros.StaticEventHandler
+
 foreign {
     func gui_start(): Unit
 
     func gui_finish(): Unit
 
-    func gui_respack(func_respack: CFunc<(CString) -> ResPack>): Unit
+    func gui_respack(func_respack: ResPackFunc): Unit
 
     func gui_language(lang: CString): Unit
 
@@ -29,7 +31,11 @@ foreign {
 
     func gui_border_color(): Color
 
+    func gui_device(): Device
+
     func gui_resolution(): S2Df
+
+    func gui_workarea(): R2Df
 
     func gui_mouse_pos(): V2Df
 
@@ -46,9 +52,9 @@ foreign {
     func gui_info_window(fatal: Bool, msg: CString, caption: CString, detail: CString, file: CString, line: UInt32,
         buttons: CPointer<Unit>, defindex: UInt32): UInt32
 
-    func evbind_object_imp(e: Event, type_: CString): CPointer<Unit>
+    func evbind_object_imp(event: CPointer<Unit>, typeName: CString): CPointer<Unit>
 
-    func evbind_modify_imp(e: Event, type_: CString, size: UInt16, mname: CString, mtype: CString, moffset: UInt16,
+    func evbind_modify_imp(event: CPointer<Unit>, typeName: CString, size: UInt16, mname: CString, mtype: CString, moffset: UInt16,
         msize: UInt16): Bool
 }
 
@@ -61,7 +67,7 @@ public struct GUI {
         unsafe { gui_finish() }
     }
 
-    public static func respack(function: CFunc<(CString) -> ResPack>): Unit {
+    public static func respack(function: ResPackFunc): Unit {
         unsafe { gui_respack(function) }
     }
 
@@ -73,34 +79,50 @@ public struct GUI {
         }
     }
 
-    public static func text(id: ResId): ?String {
+    public static func getText(id: ResId): ?String {
         unsafe {
             let strPtr = gui_text(id.cStr)
-            let res = match (strPtr.isNull()) {
+            return match (strPtr.isNull()) {
                 case false => strPtr.toString()
                 case true => None<String>
             }
-            return res
         }
     }
 
-    public static func image(id: ResId): ?Image {
+    public static func getImage(id: ResId): ?Image {
         unsafe {
             let handle = gui_image(id.cStr)
-            let res = match (handle.isNull()) {
+            return match (handle.isNull()) {
                 case false => Image(handle)
                 case true => None<Image>
             }
-            return res
         }
     }
 
-    public static func file(id: ResId, size: Box<UInt32>): CPointer<Byte> {
+    public static func getFile(id: ResId): ?(CPointer<Byte>, UInt32) {
         unsafe {
             var dataSize = 0u32
             let dataPtr = gui_file(id.cStr, inout dataSize)
-            size.value = dataSize
-            return dataPtr
+            return match (dataPtr.isNull()) {
+                case false => (dataPtr, dataSize)
+                case true => None
+            }
+        }
+    }
+
+    public static func getFileAsArray(id: ResId): ?Array<Byte> {
+        unsafe {
+            var dataSize = 0u32
+            let dataPtr = gui_file(id.cStr, inout dataSize)
+            return match (dataPtr.isNull()) {
+                case false =>
+                    let arr = Array<Byte>(Int64(dataSize), repeat: 0)
+                    let rawData = acquireArrayRawData(arr)
+                    memcpy_s(rawData.pointer, UIntNative(dataSize), dataPtr, UIntNative(dataSize))
+                    releaseArrayRawData(rawData)
+                    arr
+                case true => None
+            }
         }
     }
 
@@ -132,8 +154,16 @@ public struct GUI {
         unsafe { gui_border_color() }
     }
 
+    public static func device(): Device {
+        unsafe { gui_device() }
+    }
+
     public static func resolution(): S2Df {
         unsafe { gui_resolution() }
+    }
+
+    public static func workarea(): R2Df {
+        unsafe { gui_workarea() }
     }
 
     public static func mousePos(): V2Df {
@@ -144,21 +174,15 @@ public struct GUI {
         unsafe { gui_update() }
     }
 
-    public static func onThemeChanged(listener: Listener): Unit {
-        unsafe { gui_OnThemeChanged(listener) }
-    }
+    @StaticEventHandler(gui_OnThemeChanged)
 
     public static func updateTransitions(prtime: Float64, crtime: Float64): Unit {
         unsafe { gui_update_transitions(prtime, crtime) }
     }
 
-    public static func onNotification(listener: Listener): Unit {
-        unsafe { gui_OnNotification(listener) }
-    }
+    @StaticEventHandler(gui_OnNotification)
 
-    public static func onIdle(listener: Listener): Unit {
-        unsafe { gui_OnIdle(listener) }
-    }
+    @StaticEventHandler(gui_OnIdle)
 
     public static func infoWindow(fatal: Bool, msg: String, caption: String, detail: String, file: String, line: UInt32,
         buttons: CPointer<Unit>, defindex: UInt32): UInt32 {

@@ -1,73 +1,77 @@
 package nappgui4cj
 
+import nappgui4cj.macros.EventHandler
+
 foreign {
     func slider_create(): CPointer<Unit>
 
     func slider_vertical(): CPointer<Unit>
 
-    func slider_OnMoved(slider: Slider, listener: Listener): Unit
+    func slider_OnMoved(slider: CPointer<Unit>, listener: Listener): Unit
 
-    func slider_min_width(slider: Slider, width: Float32): Unit
+    func slider_length(slider: CPointer<Unit>, width: Float32): Unit
 
-    func slider_tooltip(slider: Slider, text: CString): Unit
+    func slider_tooltip(slider: CPointer<Unit>, text: CString): Unit
 
-    func slider_steps(slider: Slider, steps: UInt32): Unit
+    func slider_steps(slider: CPointer<Unit>, steps: UInt32): Unit
 
-    func slider_value(slider: Slider, value: Float32): Unit
+    func slider_value(slider: CPointer<Unit>, value: Float32): Unit
 
-    func slider_get_value(slider: Slider): Float32
+    func slider_get_value(slider: CPointer<Unit>): Float32
 }
 
-@C
-public struct Slider {
-    private var m_handle: CPointer<Unit>
+public enum SliderType {
+    | SlHorizontal
+    | SlVertical
+}
 
-    public init() {
-        m_handle = unsafe { slider_create() }
+public class Slider <: GuiControl {
+    var m_handle: CPointer<Unit>
+
+    public init(handle: CPointer<Unit>) {
+        m_handle = handle
     }
 
-    public init(vertical: Bool) {
-        if (vertical) {
-            m_handle = unsafe { slider_vertical() }
-        } else {
-            m_handle = unsafe { slider_create() }
+    public init(sliderType: SliderType) {
+        m_handle = match (sliderType) {
+            case SlHorizontal => unsafe { slider_create() }
+            case SlVertical => unsafe { slider_vertical() }
         }
     }
 
-    public static func create(): CPointer<Unit> {
-        unsafe { slider_create() }
+    public prop handle: CPointer<Unit> {
+        get() {
+            m_handle
+        }
     }
 
-    public static func vertical(): CPointer<Unit> {
-        unsafe { slider_vertical() }
+    public static func create(handle: CPointer<Unit>): Slider {
+        Slider(handle)
     }
 
-    public func onMoved<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { slider_OnMoved(this, listener) }
-    }
+    @EventHandler(slider_OnMoved)
 
-    public func setMinWidth(width: Float32): Unit {
-        unsafe { slider_min_width(this, width) }
+    public func setLength(width: Float32): Unit {
+        unsafe { slider_length(m_handle, width) }
     }
 
     public func setTooltip(text: String): Unit {
         unsafe {
             let strPtr = LibC.mallocCString(text)
-            slider_tooltip(this, strPtr)
+            slider_tooltip(m_handle, strPtr)
             LibC.free(strPtr)
         }
     }
 
     public func setSteps(steps: UInt32): Unit {
-        unsafe { slider_steps(this, steps) }
+        unsafe { slider_steps(m_handle, steps) }
     }
 
     public func setValue(value: Float32): Unit {
-        unsafe { slider_value(this, value) }
+        unsafe { slider_value(m_handle, value) }
     }
 
     public func getValue(): Float32 {
-        unsafe { slider_get_value(this) }
+        unsafe { slider_get_value(m_handle) }
     }
 }

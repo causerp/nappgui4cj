@@ -1,6 +1,35 @@
 # NAppGUI Changelog
 
-## v1.6.0 - WIP
+## v1.6.1 - WIP
+
+### Added
+
+- `gui_device()`. [Commit](https://github.com/frang75/nappgui_src/commit/6b83033f585fa3d12fee07a121ab3f2a6516d427).
+- `gui_workarea()`. [Commit](https://github.com/frang75/nappgui_src/commit/6b83033f585fa3d12fee07a121ab3f2a6516d427).
+- Support for gui lines. [Commit]().
+    * New `Line` widget `line.h`. [Doc]().
+    * `guicontrol_line()`.
+    * `cell_line()`.
+    * `layout_line()`.
+    * `layout_get_line()`.
+
+### Changed
+
+- `label_min_width()` renamed by `label_width()`. [Commit]().
+- `button_min_width()` renamed by `button_width()`. [Commit]().
+- `edit_min_width()` renamed by `edit_width()`. [Commit]().
+- `edit_min_height()` renamed by `edit_height()`. [Commit]().
+- `combo_min_width()` renamed by `combo_width()`. [Commit]().
+- `slider_min_width()` renamed by `slider_length()`. [Commit]().
+- `progress_min_width()` renamed by `progress_width()`. [Commit]().
+
+### Fixed
+
+- Avoid flickering in Win32 when `SplitView` divider moves. [Commit](https://github.com/frang75/nappgui_src/commit/5f75ca09943e18eba72334435253fffbf80f8d50).
+- Fix scrolling in macOS when `Panel` has scrollbars. [Commit](https://github.com/frang75/nappgui_src/commit/0acdbc2f9aa63fac8d6c140b7aa35ec577f6dc5b).
+- Fix crash in `window.c`. [Commit](https://github.com/frang75/nappgui_src/commit/385971c00d805f1c4e7d4068ad55110e1c5ee9a7).
+
+## v1.6.0 - Dec 31, 2025 (r6721)
 
 ### Added
 
@@ -35,8 +64,8 @@
 - Flickering in toolbutton (Win32). [Commit](https://github.com/frang75/nappgui_src/commit/0975bd1846369d3ebe56a34138221e7fcaae8a44).
 - Win32 multiple tooltips in same window. [Commit](https://github.com/frang75/nappgui_src/commit/582457afb98db79e3be08df810ebdb1467ff008a).
 - Win32 popup avoid change selection with mouse wheel. [Commit](https://github.com/frang75/nappgui_src/commit/5e1caadc4f5c288dc9a5be42b39551e88a0524fb).
-- `ekGUI_OFF` issue in Gtk menu. [Issue](https://github.com/frang75/nappgui_src/issues/202). [Commit]().
-- `SplitView` minor fix macOS/Linux. [Commit]().
+- `ekGUI_OFF` issue in Gtk menu. [Issue](https://github.com/frang75/nappgui_src/issues/202). [Commit](https://github.com/frang75/nappgui_src/commit/5c113a422114f03ef97883b85aed83ed98a98cbd).
+- `SplitView` minor fix macOS/Linux. [Commit](https://github.com/frang75/nappgui_src/commit/5c113a422114f03ef97883b85aed83ed98a98cbd).
 
 ### Build System
 

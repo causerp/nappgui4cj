@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -25,7 +25,7 @@ _gui_api void combo_OnFocus(Combo *combo, Listener *listener);
 
 _gui_api void combo_OnSelect(Combo *combo, Listener *listener);
 
-_gui_api void combo_min_width(Combo *combo, const real32_t width);
+_gui_api void combo_width(Combo *combo, const real32_t width);
 
 _gui_api void combo_text(Combo *combo, const char_t *text);
 

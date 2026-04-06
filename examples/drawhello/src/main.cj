@@ -16,7 +16,7 @@ class App <: Resource {
     var option: UInt32 = 0
 
     private init() {
-        window = Window.create(WindowFlag.Std)
+        window = Window(WindowFlag.Std)
         view = View()
         label = Label()
         slider1 = None
@@ -425,10 +425,10 @@ func drawText(ctx: DCtx, text: String, x: Float32, y: Float32, w: Float32, h: Fl
 }
 
 func textSingle(ctx: DCtx, xscale: Float32, text_width: Float32, text_trim: UInt32, text_align: UInt32): Unit {
-    var bfont = Font.createSystem(20.0, 0)
+    var bfont = Font(FntSystem, 20.0, FStyle.Normal)
     var font = bfont.withXScale(xscale)
     let text = "Text 文本 Κείμενο"
-    let (w, h) = ctx.textExtents(text, -1.0)
+    var (w, h) = ctx.textExtents(text, -1.0)
 
     ctx.setFont(font)
     ctx.setTextColor(Color.BLUE)
@@ -438,7 +438,6 @@ func textSingle(ctx: DCtx, xscale: Float32, text_width: Float32, text_trim: UInt
     let halign = Align(text_align + 1)
     ctx.setTextHAlign(halign)
 
-    var width = w
     if (text_trim > 0) {
         ctx.setTextWidth(text_width)
         if (text_trim == 1) {
@@ -448,54 +447,54 @@ func textSingle(ctx: DCtx, xscale: Float32, text_width: Float32, text_trim: UInt
         } else {
             ctx.setTextTrim(Ellipsis.End)
         }
-        width = text_width
+        w = text_width
     } else {
         ctx.setTextWidth(-1.0)
     }
 
     // Draw grid of text
-    drawText(ctx, text, 25.0, 25.0, width, h, Align.Left, Align.Top)
-    drawText(ctx, text, 300.0, 25.0, width, h, Align.Center, Align.Top)
-    drawText(ctx, text, 575.0, 25.0, width, h, Align.Right, Align.Top)
-    drawText(ctx, text, 25.0, 100.0, width, h, Align.Left, Align.Center)
-    drawText(ctx, text, 300.0, 100.0, width, h, Align.Center, Align.Center)
-    drawText(ctx, text, 575.0, 100.0, width, h, Align.Right, Align.Center)
-    drawText(ctx, text, 25.0, 175.0, width, h, Align.Left, Align.Bottom)
-    drawText(ctx, text, 300.0, 175.0, width, h, Align.Center, Align.Bottom)
-    drawText(ctx, text, 575.0, 175.0, width, h, Align.Right, Align.Bottom)
+    drawText(ctx, text, 25.0, 25.0, w, h, Align.Left, Align.Top)
+    drawText(ctx, text, 300.0, 25.0, w, h, Align.Center, Align.Top)
+    drawText(ctx, text, 575.0, 25.0, w, h, Align.Right, Align.Top)
+    drawText(ctx, text, 25.0, 100.0, w, h, Align.Left, Align.Center)
+    drawText(ctx, text, 300.0, 100.0, w, h, Align.Center, Align.Center)
+    drawText(ctx, text, 575.0, 100.0, w, h, Align.Right, Align.Center)
+    drawText(ctx, text, 25.0, 175.0, w, h, Align.Left, Align.Bottom)
+    drawText(ctx, text, 300.0, 175.0, w, h, Align.Center, Align.Bottom)
+    drawText(ctx, text, 575.0, 175.0, w, h, Align.Right, Align.Bottom)
 
     // Rotated
     var matrix = T2Df().move(25.0, 200.0).rotate(Float32.getPI() / 8.0)
     ctx.setMatrix(matrix)
-    drawText(ctx, text, 0.0, 0.0, width, h, Align.Left, Align.Top)
+    drawText(ctx, text, 0.0, 0.0, w, h, Align.Left, Align.Top)
 
     matrix = T2Df().move(300.0, 250.0).rotate(-Float32.getPI() / 8.0)
     ctx.setMatrix(matrix)
-    drawText(ctx, text, 0.0, 0.0, width, h, Align.Center, Align.Center)
+    drawText(ctx, text, 0.0, 0.0, w, h, Align.Center, Align.Center)
 
     // Scaled
     matrix = T2Df().move(25.0, 325.0).scale(3.0, 1.0)
     ctx.setMatrix(matrix)
-    drawText(ctx, text, 0.0, 0.0, width, h, Align.Left, Align.Top)
+    drawText(ctx, text, 0.0, 0.0, w, h, Align.Left, Align.Top)
 
     matrix = T2Df().move(575.0, 200.0).scale(0.5, 1.0)
     ctx.setMatrix(matrix)
-    drawText(ctx, text, 0.0, 0.0, width, h, Align.Right, Align.Top)
+    drawText(ctx, text, 0.0, 0.0, w, h, Align.Right, Align.Top)
 
     matrix = T2Df().move(575.0, 230.0).scale(0.75, 1.0)
     ctx.setMatrix(matrix)
-    drawText(ctx, text, 0.0, 0.0, width, h, Align.Right, Align.Top)
+    drawText(ctx, text, 0.0, 0.0, w, h, Align.Right, Align.Top)
 
     matrix = T2Df().move(575.0, 260.0).scale(1.25, 1.0)
     ctx.setMatrix(matrix)
-    drawText(ctx, text, 0.0, 0.0, width, h, Align.Right, Align.Top)
+    drawText(ctx, text, 0.0, 0.0, w, h, Align.Right, Align.Top)
 
     font.destroy()
     bfont.destroy()
 }
 
 func textNewline(ctx: DCtx, xscale: Float32, align: UInt32): Unit {
-    var bfont = Font.createSystem(20.0, 0)
+    var bfont = Font(FntSystem, 20.0, FStyle.Normal)
     var font = bfont.withXScale(xscale)
     let text = "Text new line\n文字换行\nΓραμμή κειμένου"
     let stext = "Text single line"
@@ -530,7 +529,7 @@ func textNewline(ctx: DCtx, xscale: Float32, align: UInt32): Unit {
 
 func textBlock(ctx: DCtx, xscale: Float32, text_width: Float32, align: UInt32): Unit {
     let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-    var bfont = Font.createSystem(Font.regularSize, 0)
+    var bfont = Font(FntSystem, Font.regularSize, FStyle.Normal)
     var font = bfont.withXScale(xscale)
 
     ctx.setFont(font)
@@ -541,7 +540,7 @@ func textBlock(ctx: DCtx, xscale: Float32, text_width: Float32, align: UInt32): 
     ctx.setTextHAlign(halign)
     ctx.setTextWidth(text_width)
 
-    let (w, h) = ctx.textExtents(text, text_width)
+    let (_, h) = ctx.textExtents(text, text_width)
 
     drawText(ctx, text, 25.0, 25.0, text_width, h, Align.Left, Align.Top)
     drawText(ctx, text, 400.0, 25.0, text_width, h, Align.Center, Align.Top)
@@ -552,7 +551,7 @@ func textBlock(ctx: DCtx, xscale: Float32, text_width: Float32, align: UInt32): 
 }
 
 func textArt(ctx: DCtx): Unit {
-    var font = Font.createSystem(50.0, 0)
+    var font = Font(FntSystem, 50.0, FStyle.Normal)
     let c: Array<Color> = [Color.BLUE, Color.RED]
     let stop: Array<Float32> = [0.0, 1.0]
     let dash: Array<Float32> = [1.0, 1.0]
@@ -586,7 +585,7 @@ func textArt(ctx: DCtx): Unit {
 }
 
 func textRaster(ctx: DCtx, xscale: Float32, text_width: Float32, text_trim: UInt32, align: UInt32): Unit {
-    var bfont = Font.createSystem(20.0, 0)
+    var bfont = Font(FntSystem, 20.0, FStyle.Normal)
     var font = bfont.withXScale(xscale)
     let halign = Align(align + 1)
 
@@ -634,7 +633,7 @@ func textRaster(ctx: DCtx, xscale: Float32, text_width: Float32, text_trim: UInt
     let tw3 = 200.0 + text_width
     ctx.setTextWidth(tw3)
     ctx.setTextTrim(Ellipsis.MLine)
-    let (w3, h3) = ctx.textExtents(text3, tw3)
+    let (_, h3) = ctx.textExtents(text3, tw3)
 
     ctx.setTextHAlign(halign)
     ctx.drawText(text3, 25.0, 125.0)
@@ -646,7 +645,7 @@ func textRaster(ctx: DCtx, xscale: Float32, text_width: Float32, text_trim: UInt
 }
 
 func imageDraw(ctx: DCtx): Unit {
-    var pack = unsafe { resdrawhelloResPack(CString(CPointer())) }
+    var pack = resdrawhelloResPack("")
     let image = Image(pack, IMAGE_PNG)
 
     ctx.setImageAlign(Align.Left, Align.Top)
@@ -747,7 +746,7 @@ func setDemo(app: App, option: UInt32): Unit {
 @C
 func onDraw(_: CPointer<Unit>, e: Event): Unit {
     let app = App.get()
-    let params = e.getParams<EvDraw>()
+    let ctx = e.getParams<EvDraw>()?.ctx ?? return
 
     let slider1 = app.slider1?.getSlider()
     let slider2 = app.slider2?.getSlider()
@@ -759,25 +758,25 @@ func onDraw(_: CPointer<Unit>, e: Event): Unit {
     let text_trim = popup1?.getSelected() ?? 0
     let text_align = popup2?.getSelected() ?? 0
 
-    params.ctx.clear(Color(200, 200, 200))
+    ctx.clear(Color(200, 200, 200))
 
     match (app.option) {
-        case 0 => drawLines(params.ctx)
+        case 0 => drawLines(ctx)
         case 1 =>
-            params.ctx.setFillColor(Color.BLUE)
-            drawShapes(params.ctx, false)
-        case 2 => drawGradient(params.ctx, slider1_pos, true, false)
-        case 3 => drawGradient(params.ctx, slider1_pos, true, true)
-        case 4 => drawGradient(params.ctx, slider1_pos, false, true)
-        case 5 => drawLinesGradient(params.ctx, slider1_pos)
-        case 6 => drawLocalGradient(params.ctx, slider1_pos)
-        case 7 => drawWrapGradient(params.ctx)
-        case 8 => textSingle(params.ctx, slider1_pos + 0.5, 100.0 + 200.0 * (-0.5 + slider2_pos), text_trim, text_align)
-        case 9 => textNewline(params.ctx, slider1_pos + 0.5, text_align)
-        case 10 => textBlock(params.ctx, slider1_pos + 0.5, 200.0 + 200.0 * (-0.5 + slider2_pos), text_align)
-        case 11 => textArt(params.ctx)
-        case 12 => textRaster(params.ctx, slider1_pos + 0.5, 100.0 + 200.0 * (-0.5 + slider2_pos), text_trim, text_align)
-        case 13 => imageDraw(params.ctx)
+            ctx.setFillColor(Color.BLUE)
+            drawShapes(ctx, false)
+        case 2 => drawGradient(ctx, slider1_pos, true, false)
+        case 3 => drawGradient(ctx, slider1_pos, true, true)
+        case 4 => drawGradient(ctx, slider1_pos, false, true)
+        case 5 => drawLinesGradient(ctx, slider1_pos)
+        case 6 => drawLocalGradient(ctx, slider1_pos)
+        case 7 => drawWrapGradient(ctx)
+        case 8 => textSingle(ctx, slider1_pos + 0.5, 100.0 + 200.0 * (-0.5 + slider2_pos), text_trim, text_align)
+        case 9 => textNewline(ctx, slider1_pos + 0.5, text_align)
+        case 10 => textBlock(ctx, slider1_pos + 0.5, 200.0 + 200.0 * (-0.5 + slider2_pos), text_align)
+        case 11 => textArt(ctx)
+        case 12 => textRaster(ctx, slider1_pos + 0.5, 100.0 + 200.0 * (-0.5 + slider2_pos), text_trim, text_align)
+        case 13 => imageDraw(ctx)
         case _ => ()
     }
 }
@@ -789,8 +788,8 @@ func onAcceptFocus(_: CPointer<Unit>, e: Event): Unit {
 
 @C
 func onSelect1(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvButton>() ?? return
     let app = App.get()
-    let params = e.getParams<EvButton>()
     setDemo(app, params.index)
 }
 
@@ -830,8 +829,8 @@ func createPanel(app: App): Panel {
     let popup2 = PopUp()
     let popup3 = PopUp()
 
-    let slider1 = Slider()
-    let slider2 = Slider()
+    let slider1 = Slider(SlHorizontal)
+    let slider2 = Slider(SlHorizontal)
 
     label1.setText("Select primitives:")
     label2.setText("Gradient/scale:")
@@ -840,30 +839,30 @@ func createPanel(app: App): Panel {
     label5.setText("Text halign:")
     label6.setMultiline(true)
 
-    popup1.addItem("Lines", None)
-    popup1.addItem("Shapes", None)
-    popup1.addItem("Gradient-1", None)
-    popup1.addItem("Gradient-2", None)
-    popup1.addItem("Gradient-3", None)
-    popup1.addItem("Gradient-4", None)
-    popup1.addItem("Gradient-5", None)
-    popup1.addItem("Gradient-6", None)
-    popup1.addItem("Text-1", None)
-    popup1.addItem("Text-2", None)
-    popup1.addItem("Text-3", None)
-    popup1.addItem("Text-4", None)
-    popup1.addItem("Text-5", None)
-    popup1.addItem("Image", None)
+    popup1.addItem("Lines")
+    popup1.addItem("Shapes")
+    popup1.addItem("Gradient-1")
+    popup1.addItem("Gradient-2")
+    popup1.addItem("Gradient-3")
+    popup1.addItem("Gradient-4")
+    popup1.addItem("Gradient-5")
+    popup1.addItem("Gradient-6")
+    popup1.addItem("Text-1")
+    popup1.addItem("Text-2")
+    popup1.addItem("Text-3")
+    popup1.addItem("Text-4")
+    popup1.addItem("Text-5")
+    popup1.addItem("Image")
     popup1.setListHeight(6)
 
-    popup2.addItem("No trim", None)
-    popup2.addItem("Ellip begin", None)
-    popup2.addItem("Ellip middle", None)
-    popup2.addItem("Ellip end", None)
+    popup2.addItem("No trim")
+    popup2.addItem("Ellip begin")
+    popup2.addItem("Ellip middle")
+    popup2.addItem("Ellip end")
 
-    popup3.addItem("Left", None)
-    popup3.addItem("Center", None)
-    popup3.addItem("Right", None)
+    popup3.addItem("Left")
+    popup3.addItem("Center")
+    popup3.addItem("Right")
 
     popup1.onSelect(onSelect1)
     popup2.onSelect(onSelect2)

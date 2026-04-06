@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -281,7 +281,8 @@ static void i_OnWindowClose(Window *window, Event *event)
         window->in_will_close_event = FALSE;
     }
 
-    *event_result(event, bool_t) = closed;
+    if (window != NULL)
+        *event_result(event, bool_t) = closed;
 }
 
 /*---------------------------------------------------------------------------*/

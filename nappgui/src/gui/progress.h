@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -17,7 +17,7 @@ __EXTERN_C
 
 _gui_api Progress *progress_create(void);
 
-_gui_api void progress_min_width(Progress *progress, const real32_t width);
+_gui_api void progress_width(Progress *progress, const real32_t width);
 
 _gui_api void progress_undefined(Progress *progress, const bool_t running);
 

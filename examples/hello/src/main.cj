@@ -10,7 +10,7 @@ class App <: Resource {
     var clicks: UInt32 = 0
 
     private init() {
-        window = Window.create(WindowFlag.Std)
+        window = Window(WindowFlag.Std)
         text = TextView()
 
         window.setPanel(createPanel(this))
@@ -64,7 +64,7 @@ func createPanel(app: App): Panel {
     let label = Label()
     label.setText("Hello!, I'm a label")
 
-    let button = Button.createPush()
+    let button = Button(BtnPush)
     button.setText("Click Me!")
     button.onClick(onButton)
 

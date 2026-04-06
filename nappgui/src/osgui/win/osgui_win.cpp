@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -480,11 +480,7 @@ const WCHAR *_osgui_wstr_init(const char_t *text, WString *str)
         wtext = str->alloctext;
     }
 
-    {
-        uint32_t bytes = unicode_convers(text, cast(wtext, char_t), ekUTF8, ekUTF16, str->nchars * sizeof(WCHAR));
-        cassert_unref(bytes == str->nchars * sizeof(WCHAR), bytes);
-    }
-
+    unicode_convers(text, cast(wtext, char_t), ekUTF8, ekUTF16, str->nchars * sizeof(WCHAR));
     return wtext;
 }
 

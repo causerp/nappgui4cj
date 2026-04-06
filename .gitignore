@@ -4,6 +4,7 @@
 *.exe
 *.lib
 *.macrocall
+*.o
 *.so
 .cache
 .svn

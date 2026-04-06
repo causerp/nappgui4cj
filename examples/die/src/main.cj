@@ -14,7 +14,7 @@ class App <: Resource {
     var face: UInt32 = 5
 
     private init() {
-        this.window = Window.create(WindowFlag.StdRes)
+        this.window = Window(WindowFlag.StdRes)
         this.view = View()
 
         window.setPanel(createPanel(this))
@@ -52,12 +52,13 @@ class App <: Resource {
 
 @C
 func onDraw(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvDraw>() ?? return
     let app = App.get()
-    let params = e.getParams<EvDraw>()
+    let ctx = params.ctx
     let green = Color(102, 153, 26)
-    params.ctx.clear(green)
+    ctx.clear(green)
     die_draw(
-        params.ctx,
+        ctx,
         0.0,
         0.0,
         params.width,
@@ -76,8 +77,8 @@ func onAcceptFocus(_: CPointer<Unit>, e: Event): Unit {
 
 @C
 func onFace(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvButton>() ?? return
     let app = App.get()
-    let params = e.getParams<EvButton>()
     // EvButton index is 0-based, die face is 1-based
     app.face = params.index + 1
     app.view.update()
@@ -85,32 +86,32 @@ func onFace(_: CPointer<Unit>, e: Event): Unit {
 
 @C
 func onPadding(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSlider>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSlider>()
     app.padding = params.pos
     app.view.update()
 }
 
 @C
 func onCorner(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSlider>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSlider>()
     app.corner = params.pos
     app.view.update()
 }
 
 @C
 func onRadius(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSlider>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSlider>()
     app.radius = params.pos
     app.view.update()
 }
 
 @C
 func onLang(_: CPointer<Unit>, e: Event): Unit {
-    let params = e.getParams<EvButton>()
-    if (params.index == 0) {
+    let index = e.getParams<EvButton>()?.index ?? 0
+    if (index == 0) {
         GUI.language("en_us")
     } else {
         GUI.language("es_es")
@@ -133,9 +134,9 @@ func createLayout(app: App): Layout {
     let label6 = Label()
     let popup1 = PopUp()
     let popup2 = PopUp()
-    let slider1 = Slider()
-    let slider2 = Slider()
-    let slider3 = Slider()
+    let slider1 = Slider(SlHorizontal)
+    let slider2 = Slider(SlHorizontal)
+    let slider3 = Slider(SlHorizontal)
     let img = ImageView()
 
     app.view.setSize(S2Df(200.0, 200.0))
@@ -152,17 +153,17 @@ func createLayout(app: App): Layout {
     label6.setMultiline(true)
 
     // Setup Language PopUp
-    popup1.addItem(TEXT_ENGLISH, GUI.image(USA_PNG))
-    popup1.addItem(TEXT_SPANISH, GUI.image(SPAIN_PNG))
+    popup1.addItem(TEXT_ENGLISH, GUI.getImage(USA_PNG))
+    popup1.addItem(TEXT_SPANISH, GUI.getImage(SPAIN_PNG))
     popup1.onSelect(onLang)
 
     // Setup Face PopUp
-    popup2.addItem(TEXT_ONE, None)
-    popup2.addItem(TEXT_TWO, None)
-    popup2.addItem(TEXT_THREE, None)
-    popup2.addItem(TEXT_FOUR, None)
-    popup2.addItem(TEXT_FIVE, None)
-    popup2.addItem(TEXT_SIX, None)
+    popup2.addItem(TEXT_ONE)
+    popup2.addItem(TEXT_TWO)
+    popup2.addItem(TEXT_THREE)
+    popup2.addItem(TEXT_FOUR)
+    popup2.addItem(TEXT_FIVE)
+    popup2.addItem(TEXT_SIX)
     popup2.onSelect(onFace)
     // Set initial selection
     popup2.setSelected(app.face - 1)

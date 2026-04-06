@@ -11,37 +11,61 @@ foreign {
 public struct Heap {
     public static func malloc<T>(
         count!: UInt32 = 1,
-        name!: CString = CString(CPointer()),
+        name!: ?String = None,
         equal_size!: Bool = true
     ): CPointer<T> where T <: CType {
         if (count < 0) {
             throw IllegalArgumentException("The value of count cannot be negative")
         }
-        let size = count * UInt32(sizeOf<T>())
-        return CPointer<T>(unsafe { heap_malloc_imp(size, name, equal_size) })
+        unsafe {
+            let size = count * UInt32(sizeOf<T>())
+            let namePtr = match (name) {
+                case Some(name) => LibC.mallocCString(name)
+                case None => CString(CPointer())
+            }
+            let ptr = heap_malloc_imp(size, namePtr, equal_size)
+            LibC.free(namePtr)
+            return CPointer<T>(ptr)
+        }
     }
 
     public static func calloc<T>(
         count!: UInt32 = 1,
-        name!: CString = CString(CPointer()),
+        name!: ?String = None,
         equal_size!: Bool = true
     ): CPointer<T> where T <: CType {
         if (count < 0) {
             throw IllegalArgumentException("The value of count cannot be negative")
         }
-        let size = count * UInt32(sizeOf<T>())
-        return CPointer<T>(unsafe { heap_calloc_imp(size, name, equal_size) })
+        unsafe {
+            let size = count * UInt32(sizeOf<T>())
+            let namePtr = match (name) {
+                case Some(name) => LibC.mallocCString(name)
+                case None => CString(CPointer())
+            }
+            let ptr = heap_calloc_imp(size, namePtr, equal_size)
+            LibC.free(namePtr)
+            return CPointer<T>(ptr)
+        }
     }
 
     public static func free<T>(
-        mem: CPointer<CPointer<T>>,
+        mem: CPointer<T>,
         count!: UInt32 = 1,
-        name!: CString = CString(CPointer())
+        name!: ?String = None
     ): Unit where T <: CType {
         if (count < 0) {
             throw IllegalArgumentException("The value of count cannot be negative")
         }
-        let size = count * UInt32(sizeOf<T>())
-        unsafe { heap_free(CPointer<CPointer<Unit>>(mem), size, name) }
+        unsafe {
+            var ptr = CPointer<Unit>(mem)
+            let size = count * UInt32(sizeOf<T>())
+            let namePtr = match (name) {
+                case Some(name) => LibC.mallocCString(name)
+                case None => CString(CPointer())
+            }
+            heap_free(inout ptr, size, namePtr)
+            LibC.free(namePtr)
+        }
     }
 }

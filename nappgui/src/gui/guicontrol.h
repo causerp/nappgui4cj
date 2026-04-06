@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -46,6 +46,8 @@ _gui_api TableView *guicontrol_tableview(GuiControl *control);
 _gui_api SplitView *guicontrol_splitview(GuiControl *control);
 
 _gui_api Panel *guicontrol_panel(GuiControl *control);
+
+_gui_api Line *guicontrol_line(GuiControl *control);
 
 _gui_api void guicontrol_tag(GuiControl *control, const uint32_t tag);
 

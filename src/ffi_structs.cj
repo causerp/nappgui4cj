@@ -117,18 +117,27 @@ public struct EvButton {
 
 @C
 public struct EvDraw {
-    public var ctx: DCtx
+    public var ctxPtr: CPointer<Unit>
     public var x: Float32
     public var y: Float32
     public var width: Float32
     public var height: Float32
 
-    public init() {
-        ctx = DCtx()
+    public init(ctx: DCtx) {
+        ctxPtr = ctx.m_handle
         x = 0.0
         y = 0.0
         width = 0.0
         height = 0.0
+    }
+
+    public mut prop ctx: DCtx {
+        get() {
+            DCtx(ctxPtr)
+        }
+        set(value) {
+            ctxPtr = value.m_handle
+        }
     }
 }
 
@@ -219,13 +228,22 @@ public struct EvSlider {
 @C
 public struct EvTbCell {
     public var text: CString
-    public var icon: CPointer<Unit>
+    public var iconPtr: CPointer<Unit>
     public var align: Align
 
     public init() {
         text = CString(CPointer())
-        icon = CPointer<Unit>()
+        iconPtr = CPointer()
         align = Align.Left
+    }
+
+    public mut prop icon: Image {
+        get() {
+            Image(iconPtr)
+        }
+        set(value) {
+            iconPtr = value.m_handle
+        }
     }
 }
 

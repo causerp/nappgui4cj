@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -79,6 +79,25 @@ void osglobals_resolution(const void *non_used, real32_t *width, real32_t *heigh
     cassert_no_null(height);
     *width = (real32_t)GetSystemMetrics(SM_CXSCREEN);
     *height = (real32_t)GetSystemMetrics(SM_CYSCREEN);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void osglobals_workarea(const void *non_used, real32_t *x, real32_t *y, real32_t *width, real32_t *height)
+{
+    RECT rcWork;
+    unref(non_used);
+    cassert_no_null(x);
+    cassert_no_null(y);
+    cassert_no_null(width);
+    cassert_no_null(height);
+    if (SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWork, 0))
+    {
+        *x = (real32_t)rcWork.left;
+        *y = (real32_t)rcWork.top;
+        *width = (real32_t)(rcWork.right - rcWork.left);
+        *height = (real32_t)(rcWork.bottom - rcWork.top);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

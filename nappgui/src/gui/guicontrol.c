@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -188,6 +188,16 @@ Panel *guicontrol_panel(GuiControl *control)
     GuiComponent *component = cast(control, GuiComponent);
     if (component != NULL && component->type == ekGUI_TYPE_PANEL)
         return cast(component, Panel);
+    return NULL;
+}
+
+/*---------------------------------------------------------------------------*/
+
+Line *guicontrol_line(GuiControl *control)
+{
+    GuiComponent *component = cast(control, GuiComponent);
+    if (component != NULL && component->type == ekGUI_TYPE_LINE)
+        return cast(component, Line);
     return NULL;
 }
 

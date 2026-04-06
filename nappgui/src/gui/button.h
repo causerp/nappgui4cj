@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -29,7 +29,7 @@ _gui_api Button *button_flatgle(void);
 
 _gui_api void button_OnClick(Button *button, Listener *listener);
 
-_gui_api void button_min_width(Button *button, const real32_t width);
+_gui_api void button_width(Button *button, const real32_t width);
 
 _gui_api void button_text(Button *button, const char_t *text);
 

@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -19,6 +19,18 @@ _gui_api void cell_force_size(Cell *cell, const real32_t width, const real32_t h
 _gui_api real32_t cell_get_hsize(const Cell *cell);
 
 _gui_api real32_t cell_get_vsize(const Cell *cell);
+
+_gui_api real32_t cell_get_origin_x(const Cell *cell);
+
+_gui_api real32_t cell_get_origin_y(const Cell *cell);
+
+_gui_api real32_t cell_get_padding_top(const Cell *cell);
+
+_gui_api real32_t cell_get_padding_left(const Cell *cell);
+
+_gui_api real32_t cell_get_padding_bottom(const Cell *cell);
+
+_gui_api real32_t cell_get_padding_right(const Cell *cell);
 
 _gui_api align_t cell_get_halign(const Cell *cell);
 

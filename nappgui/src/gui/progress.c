@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -60,7 +60,7 @@ Progress *progress_create(void)
 
 /*---------------------------------------------------------------------------*/
 
-void progress_min_width(Progress *progress, const real32_t width)
+void progress_width(Progress *progress, const real32_t width)
 {
     cassert_no_null(progress);
     cassert(width > 0);

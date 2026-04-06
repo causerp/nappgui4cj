@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -21,7 +21,6 @@ enum _gievent_t
     ekGUI_EVENT_ANIMATION
 };
 
-typedef struct _line_t Line;
 typedef union _tag_t Tag;
 typedef struct _gui_component_t GuiComponent;
 typedef struct _vctrltbl_t VCtrlTbl;

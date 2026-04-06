@@ -28,7 +28,7 @@ BEGIN
         BLOCK "040904E4" // Language: English (US), Charset: Windows Latin-1
         BEGIN
             VALUE "CompanyName", "Your Company Name"
-            VALUE "FileDescription", "nappgui4cj drawhello example"
+            VALUE "FileDescription", "nappgui4cj drawimg example"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "nappgui4cj"
             VALUE "LegalCopyright", "Copyright (C) 2026"

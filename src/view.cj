@@ -1,5 +1,7 @@
 package nappgui4cj
 
+import nappgui4cj.macros.EventHandler
+
 foreign {
     func view_create(): CPointer<Unit>
 
@@ -7,229 +9,198 @@ foreign {
 
     func view_custom(scroll: Bool, border: Bool): CPointer<Unit>
 
-    func view_data_imp(view: View, data: CPointer<CPointer<Unit>>, func_destroy_data: CPointer<Unit>): Unit
+    func view_data_imp(view: CPointer<Unit>, data: CPointer<CPointer<Unit>>, func_destroy_data: CPointer<Unit>): Unit
 
-    func view_get_data_imp(view: View): CPointer<Unit>
+    func view_get_data_imp(view: CPointer<Unit>): CPointer<Unit>
 
-    func view_size(view: View, size: S2Df): Unit
+    func view_size(view: CPointer<Unit>, size: S2Df): Unit
 
-    func view_OnDraw(view: View, listener: Listener): Unit
+    func view_OnDraw(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnOverlay(view: View, listener: Listener): Unit
+    func view_OnOverlay(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnSize(view: View, listener: Listener): Unit
+    func view_OnSize(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnEnter(view: View, listener: Listener): Unit
+    func view_OnEnter(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnExit(view: View, listener: Listener): Unit
+    func view_OnExit(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnMove(view: View, listener: Listener): Unit
+    func view_OnMove(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnDown(view: View, listener: Listener): Unit
+    func view_OnDown(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnUp(view: View, listener: Listener): Unit
+    func view_OnUp(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnClick(view: View, listener: Listener): Unit
+    func view_OnClick(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnDrag(view: View, listener: Listener): Unit
+    func view_OnDrag(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnWheel(view: View, listener: Listener): Unit
+    func view_OnWheel(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnKeyDown(view: View, listener: Listener): Unit
+    func view_OnKeyDown(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnKeyUp(view: View, listener: Listener): Unit
+    func view_OnKeyUp(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnFocus(view: View, listener: Listener): Unit
+    func view_OnFocus(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnResignFocus(view: View, listener: Listener): Unit
+    func view_OnResignFocus(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnAcceptFocus(view: View, listener: Listener): Unit
+    func view_OnAcceptFocus(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_OnScroll(view: View, listener: Listener): Unit
+    func view_OnScroll(view: CPointer<Unit>, listener: Listener): Unit
 
-    func view_allow_tab(view: View, allow: Bool): Unit
+    func view_allow_tab(view: CPointer<Unit>, allow: Bool): Unit
 
-    func view_keybuf(view: View, buffer: CPointer<Unit>): Unit
+    func view_keybuf(view: CPointer<Unit>, buffer: CPointer<Unit>): Unit
 
-    func view_get_size(view: View, size: CPointer<S2Df>): Unit
+    func view_get_size(view: CPointer<Unit>, size: CPointer<S2Df>): Unit
 
-    func view_content_size(view: View, size: S2Df, line: S2Df): Unit
+    func view_content_size(view: CPointer<Unit>, size: S2Df, line: S2Df): Unit
 
-    func view_scroll_x(view: View, pos: Float32): Unit
+    func view_scroll_x(view: CPointer<Unit>, pos: Float32): Unit
 
-    func view_scroll_y(view: View, pos: Float32): Unit
+    func view_scroll_y(view: CPointer<Unit>, pos: Float32): Unit
 
-    func view_scroll_size(view: View, width: CPointer<Float32>, height: CPointer<Float32>): Unit
+    func view_scroll_size(view: CPointer<Unit>, width: CPointer<Float32>, height: CPointer<Float32>): Unit
 
-    func view_scroll_visible(view: View, horizontal: Bool, vertical: Bool): Unit
+    func view_scroll_visible(view: CPointer<Unit>, horizontal: Bool, vertical: Bool): Unit
 
-    func view_viewport(view: View, pos: CPointer<V2Df>, size: CPointer<S2Df>): Unit
+    func view_viewport(view: CPointer<Unit>, pos: CPointer<V2Df>, size: CPointer<S2Df>): Unit
 
-    func view_point_scale(view: View, scale: CPointer<Float32>): Unit
+    func view_point_scale(view: CPointer<Unit>, scale: CPointer<Float32>): Unit
 
-    func view_update(view: View): Unit
+    func view_update(view: CPointer<Unit>): Unit
 
-    func view_native(view: View): CPointer<Unit>
+    func view_native(view: CPointer<Unit>): CPointer<Unit>
 }
 
-@C
-public struct View {
-    private var m_handle: CPointer<Unit>
+public enum ViewType {
+    | ViNormal
+    | ViScroll
+    | ViCustom(Bool, Bool)
+}
+
+public class View <: GuiControl {
+    var m_handle: CPointer<Unit>
+
+    public init(handle: CPointer<Unit>) {
+        m_handle = handle
+    }
 
     public init() {
         m_handle = unsafe { view_create() }
     }
 
-    public init(scroll: Bool, border!: Bool = false) {
-        m_handle = match {
-            case scroll && !border => unsafe { view_scroll() }
-            case _ => unsafe { view_custom(scroll, border) }
+    public init(viewType: ViewType) {
+        m_handle = match (viewType) {
+            case ViNormal => unsafe { view_create() }
+            case ViScroll => unsafe { view_scroll() }
+            case ViCustom(scroll, border) => unsafe { view_custom(scroll, border) }
         }
     }
 
+    public prop handle: CPointer<Unit> {
+        get() {
+            m_handle
+        }
+    }
+
+    public static func create(handle: CPointer<Unit>): View {
+        View(handle)
+    }
+
     public func setData(data: CPointer<CPointer<Unit>>, destroyFunc: CPointer<Unit>): Unit {
-        unsafe { view_data_imp(this, data, destroyFunc) }
+        unsafe { view_data_imp(m_handle, data, destroyFunc) }
     }
 
     public func getData(): CPointer<Unit> {
-        unsafe { view_get_data_imp(this) }
+        unsafe { view_get_data_imp(m_handle) }
     }
 
     public func setSize(size: S2Df): Unit {
-        unsafe { view_size(this, size) }
+        unsafe { view_size(m_handle, size) }
     }
 
-    public func onDraw<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnDraw(this, listener) }
-    }
+    @EventHandler(view_OnDraw)
 
-    public func onOverlay<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnOverlay(this, listener) }
-    }
+    @EventHandler(view_OnOverlay)
 
-    public func onSize<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnSize(this, listener) }
-    }
+    @EventHandler(view_OnSize)
 
-    public func onEnter<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnEnter(this, listener) }
-    }
+    @EventHandler(view_OnEnter)
 
-    public func onExit<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnExit(this, listener) }
-    }
+    @EventHandler(view_OnExit)
 
-    public func onMove<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnMove(this, listener) }
-    }
+    @EventHandler(view_OnMove)
 
-    public func onDown<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnDown(this, listener) }
-    }
+    @EventHandler(view_OnDown)
 
-    public func onUp<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnUp(this, listener) }
-    }
+    @EventHandler(view_OnUp)
 
-    public func onClick<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnClick(this, listener) }
-    }
+    @EventHandler(view_OnClick)
 
-    public func onDrag<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnDrag(this, listener) }
-    }
+    @EventHandler(view_OnDrag)
 
-    public func onWheel<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnWheel(this, listener) }
-    }
+    @EventHandler(view_OnWheel)
 
-    public func onKeyDown<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnKeyDown(this, listener) }
-    }
+    @EventHandler(view_OnKeyDown)
 
-    public func onKeyUp<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnKeyUp(this, listener) }
-    }
+    @EventHandler(view_OnKeyUp)
 
-    public func onFocus<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnFocus(this, listener) }
-    }
+    @EventHandler(view_OnFocus)
 
-    public func onResignFocus<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnResignFocus(this, listener) }
-    }
+    @EventHandler(view_OnResignFocus)
 
-    public func onAcceptFocus<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnAcceptFocus(this, listener) }
-    }
+    @EventHandler(view_OnAcceptFocus)
 
-    public func onScroll<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { view_OnScroll(this, listener) }
-    }
+    @EventHandler(view_OnScroll)
 
     public func allowTab(allow: Bool): Unit {
-        unsafe { view_allow_tab(this, allow) }
+        unsafe { view_allow_tab(m_handle, allow) }
     }
 
     public func setKeyBuf(buffer: CPointer<Unit>): Unit {
-        unsafe { view_keybuf(this, buffer) }
+        unsafe { view_keybuf(m_handle, buffer) }
     }
 
     public func getSize(): S2Df {
         unsafe {
             var s = S2Df()
-            view_get_size(this, inout s)
+            view_get_size(m_handle, inout s)
             return s
         }
     }
 
     public func setContentSize(size: S2Df, line: S2Df): Unit {
-        unsafe { view_content_size(this, size, line) }
+        unsafe { view_content_size(m_handle, size, line) }
     }
 
     public func scrollX(pos: Float32): Unit {
-        unsafe { view_scroll_x(this, pos) }
+        unsafe { view_scroll_x(m_handle, pos) }
     }
 
     public func scrollY(pos: Float32): Unit {
-        unsafe { view_scroll_y(this, pos) }
+        unsafe { view_scroll_y(m_handle, pos) }
     }
 
     public func getScrollSize(): (Float32, Float32) {
         unsafe {
             var w: Float32 = 0.0
             var h: Float32 = 0.0
-            view_scroll_size(this, inout w, inout h)
+            view_scroll_size(m_handle, inout w, inout h)
             return (w, h)
         }
     }
 
     public func setScrollVisible(horizontal: Bool, vertical: Bool): Unit {
-        unsafe { view_scroll_visible(this, horizontal, vertical) }
+        unsafe { view_scroll_visible(m_handle, horizontal, vertical) }
     }
 
     // public func getViewport(): (V2Df, S2Df) {
     //     unsafe {
     //         var p = V2Df()
     //         var s = S2Df()
-    //         view_viewport(this, inout p, inout s)
+    //         view_viewport(m_handle, inout p, inout s)
     //         return (p, s)
     //     }
     // }
@@ -237,16 +208,16 @@ public struct View {
     public func getPointScale(): Float32 {
         unsafe {
             var scale: Float32 = 0.0
-            view_point_scale(this, inout scale)
+            view_point_scale(m_handle, inout scale)
             return scale
         }
     }
 
     public func update(): Unit {
-        unsafe { view_update(this) }
+        unsafe { view_update(m_handle) }
     }
 
     public func getNative(): CPointer<Unit> {
-        unsafe { view_native(this) }
+        unsafe { view_native(m_handle) }
     }
 }

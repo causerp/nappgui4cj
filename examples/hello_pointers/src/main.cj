@@ -4,13 +4,31 @@ import nappgui4cj.*
 
 @C
 struct App {
-    var window: Window
-    var text: TextView
+    var windowPtr: CPointer<Unit>
+    var textPtr: CPointer<Unit>
     var clicks: UInt32 = 0
 
     init(window: Window) {
-        this.window = window
-        this.text = TextView()
+        windowPtr = window.handle
+        textPtr = TextView().handle
+    }
+
+    public mut prop window: Window {
+        get() {
+            Window(windowPtr)
+        }
+        set(value) {
+            windowPtr = value.handle
+        }
+    }
+
+    public mut prop text: TextView {
+        get() {
+            TextView(textPtr)
+        }
+        set(value) {
+            textPtr = value.handle
+        }
     }
 }
 
@@ -31,7 +49,6 @@ func onClose(_: CPointer<App>, e: Event): Unit {
     }
 }
 
-@C
 func createPanel(appPtr: CPointer<App>): Panel {
     unsafe {
         let panel = Panel()
@@ -40,7 +57,7 @@ func createPanel(appPtr: CPointer<App>): Panel {
         let label = Label()
         label.setText("Hello!, I'm a label")
 
-        let button = Button.createPush()
+        let button = Button(BtnPush)
         button.setText("Click Me!")
         button.onClick(onButton, obj: appPtr)
 
@@ -65,7 +82,7 @@ func createPanel(appPtr: CPointer<App>): Panel {
 func appCreate(): CPointer<App> {
     unsafe {
         let appPtr = Heap.calloc<App>()
-        var app = App(Window.create(WindowFlag.Std))
+        var app = App(Window(WindowFlag.Std))
         appPtr.write(app)
 
         app.window.setPanel(createPanel(appPtr))
@@ -83,7 +100,8 @@ func appCreate(): CPointer<App> {
 func appDestroy(appPtrPtr: CPointer<CPointer<App>>): Unit {
     unsafe {
         var app = appPtrPtr.read().read()
-        app.window.destroy()
+        var window = app.window
+        window.destroy()
         Heap.free(appPtrPtr)
     }
 }

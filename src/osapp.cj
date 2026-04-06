@@ -32,8 +32,8 @@ public class OSApp {
  *   options: String options (passed as C string pointer).
  */
 public func osmain<T>(
-    onCreate!: CFunc<() -> CPointer<T>>,
-    onDestroy!: CFunc<(CPointer<CPointer<T>>) -> Unit>,
+    onCreate!: AppCreateFunc<T>,
+    onDestroy!: DestroyFunc<T>,
     options!: String = String.empty
 ): Unit where T <: CType {
     osmain_sync(
@@ -77,9 +77,9 @@ public func osmain_sync(
 
 public func osmain_sync<T>(
     lframe!: Float64 = 0.0,
-    onCreate!: CFunc<() -> CPointer<T>>,
-    onUpdate!: CFunc<(CPointer<T>, Float64, Float64) -> Unit> = CPointer(),
-    onDestroy!: CFunc<(CPointer<CPointer<T>>) -> Unit>,
+    onCreate!: AppCreateFunc<T>,
+    onUpdate!: AppUpdateFunc<T> = CPointer(),
+    onDestroy!: DestroyFunc<T>,
     options!: String = String.empty
 ): Unit where T <: CType {
     osmain_sync(

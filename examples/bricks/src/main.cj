@@ -34,9 +34,9 @@ class App <: Resource {
     var view: View
 
     private init() {
-        window = Window.create(WindowFlag.StdRes)
+        window = Window(WindowFlag.StdRes)
         button = None
-        slider = Slider()
+        slider = Slider(SlHorizontal)
         view = View()
 
         window.setPanel(createPanel(this))
@@ -91,12 +91,13 @@ func collision(brick: Brick, brickWidth: Float32, ballX: Float32, ballY: Float32
 
 @C
 func onDraw(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvDraw>() ?? return
     let app = App.get()
-    let params = e.getParams<EvDraw>()
+    let ctx = params.ctx
 
     let green = Color(102, 153, 26)
-    params.ctx.clear(green)
-    params.ctx.setLineColor(Color.BLACK)
+    ctx.clear(green)
+    ctx.setLineColor(Color.BLACK)
 
     for (i in 0..NUM_BRICKS) {
         let brick = app.bricks[i]
@@ -105,8 +106,8 @@ func onDraw(_: CPointer<Unit>, e: Event): Unit {
             let y = brick.y * params.height
             let width = app.brickWidth * params.width
             let height = BRICK_HEIGHT * params.height
-            params.ctx.setFillColor(app.color[Int64(brick.color)])
-            params.ctx.drawRect(DrawOp.FillSk, x, y, width, height)
+            ctx.setFillColor(app.color[Int64(brick.color)])
+            ctx.drawRect(DrawOp.FillSk, x, y, width, height)
         }
     }
 
@@ -115,21 +116,21 @@ func onDraw(_: CPointer<Unit>, e: Event): Unit {
     let py = (1.0 - BRICK_HEIGHT - BRICK_SEPARATION) * params.height
     let pw = 2.0 * app.brickWidth * params.width
     let ph = BRICK_HEIGHT * params.height
-    params.ctx.setFillColor(Color.BLACK)
-    params.ctx.drawRect(DrawOp.Fill, px, py, pw, ph)
+    ctx.setFillColor(Color.BLACK)
+    ctx.drawRect(DrawOp.Fill, px, py, pw, ph)
 
     // Draw Ball
     let bx = app.ballX * params.width
     let by = app.ballY * params.height
     let br = BALL_RADIUS * params.width
-    params.ctx.setFillColor(Color.WHITE)
-    params.ctx.drawCircle(DrawOp.Fill, bx, by, br)
+    ctx.setFillColor(Color.WHITE)
+    ctx.drawCircle(DrawOp.Fill, bx, by, br)
 }
 
 @C
 func onSlider(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSlider>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSlider>()
     app.playerPos = params.pos
 }
 
@@ -190,7 +191,7 @@ func createLayout(app: App): Layout {
 
     label.setText("Use the slider!")
 
-    let button = Button.createPush()
+    let button = Button(BtnPush)
     button.setText("Start")
     button.onClick(onStart)
 

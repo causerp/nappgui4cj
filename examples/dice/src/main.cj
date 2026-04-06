@@ -14,7 +14,7 @@ class App <: Resource {
     var face: VArray<UInt32, $6> = VArray<UInt32, $6>(repeat: 0)
 
     private init() {
-        this.window = Window.create(WindowFlag.Std)
+        this.window = Window(WindowFlag.Std)
         this.view = View()
 
         face[0] = 1
@@ -59,8 +59,9 @@ class App <: Resource {
 
 @C
 func onRedraw(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvDraw>() ?? return
     let app = App.get()
-    let params = e.getParams<EvDraw>()
+    let ctx = params.ctx
 
     let green = Color(102, 153, 26)
     let w = params.width / 3.0
@@ -69,14 +70,14 @@ func onRedraw(_: CPointer<Unit>, e: Event): Unit {
     let c = DefCorner
     let r = DefRadius
 
-    params.ctx.clear(green)
+    ctx.clear(green)
 
-    die_draw(params.ctx, 0.0, 0.0, w, h, p, c, r, app.face[0])
-    die_draw(params.ctx, w, 0.0, w, h, p, c, r, app.face[1])
-    die_draw(params.ctx, 2.0 * w, 0.0, w, h, p, c, r, app.face[2])
-    die_draw(params.ctx, 0.0, h, w, h, p, c, r, app.face[3])
-    die_draw(params.ctx, w, h, w, h, p, c, r, app.face[4])
-    die_draw(params.ctx, 2.0 * w, h, w, h, p, c, r, app.face[5])
+    die_draw(ctx, 0.0, 0.0, w, h, p, c, r, app.face[0])
+    die_draw(ctx, w, 0.0, w, h, p, c, r, app.face[1])
+    die_draw(ctx, 2.0 * w, 0.0, w, h, p, c, r, app.face[2])
+    die_draw(ctx, 0.0, h, w, h, p, c, r, app.face[3])
+    die_draw(ctx, w, h, w, h, p, c, r, app.face[4])
+    die_draw(ctx, 2.0 * w, h, w, h, p, c, r, app.face[5])
 }
 
 @C
@@ -100,7 +101,7 @@ func createLayout(app: App): Layout {
     app.view.onDraw(onRedraw)
     app.view.onAcceptFocus(onAcceptFocus)
 
-    let slider = Slider()
+    let slider = Slider(SlHorizontal)
     slider.onMoved(onMoved)
 
     let layout = Layout(1, 2)

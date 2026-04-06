@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -583,11 +583,15 @@ void _oscombo_command(OSCombo *combo, WPARAM wParam)
     {
         if (IsWindowEnabled(combo->control.hwnd) && combo->OnSelect != NULL)
         {
-            EvButton params;
-            params.state = ekGUI_ON;
-            params.index = (uint16_t)SendMessage(combo->control.hwnd, CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
-            params.text = NULL;
-            listener_event(combo->OnSelect, ekGUI_EVENT_BUTTON, combo, &params, NULL, OSCombo, EvButton, void);
+            LRESULT res = SendMessage(combo->control.hwnd, CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+            if (res != CB_ERR)
+            {
+                EvButton params;
+                params.state = ekGUI_ON;
+                params.index = (uint16_t)res;
+                params.text = NULL;
+                listener_event(combo->OnSelect, ekGUI_EVENT_BUTTON, combo, &params, NULL, OSCombo, EvButton, void);
+            }
         }
     }
 }

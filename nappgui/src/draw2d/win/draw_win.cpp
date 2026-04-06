@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -16,6 +16,7 @@
 #include "../draw.inl"
 #include "../dctxh.h"
 #include "../font.inl"
+#include "../image.h"
 #include "../image.inl"
 #include "../color.h"
 #include "../font.h"
@@ -89,11 +90,7 @@ const WCHAR *wstring_init(const char_t *text, WString *str)
         wtext = str->alloctext;
     }
 
-    {
-        uint32_t bytes = unicode_convers(text, cast(wtext, char_t), ekUTF8, ekUTF16, str->nchars * sizeof(WCHAR));
-        cassert_unref(bytes == str->nchars * sizeof(WCHAR), bytes);
-    }
-
+    unicode_convers(text, cast(wtext, char_t), ekUTF8, ekUTF16, str->nchars * sizeof(WCHAR));
     return wtext;
 }
 
@@ -1116,13 +1113,18 @@ void draw_text_raster(DCtx *ctx, const char_t *text, const real32_t x, const rea
 
 /*---------------------------------------------------------------------------*/
 
-void draw_image_raster(DCtx *ctx, const Image *image, const uint32_t x, const uint32_t y)
+void draw_image_raster(DCtx *ctx, const Image *image, const real32_t x, const real32_t y)
 {
-    unref(ctx);
-    unref(image);
-    unref(x);
-    unref(y);
-    cassert(FALSE);
+    const OSImage *osimage = NULL;
+    Gdiplus::Bitmap *bitmap = NULL;
+    uint32_t width = image_width(image);
+    uint32_t height = image_height(image);
+    cassert_no_null(ctx);
+    cassert_no_null(ctx->graphics);
+    osimage = osimage_from_image(image);
+    bitmap = cast(osimage_native(osimage), Gdiplus::Bitmap);
+    i_set_gdiplus_mode(ctx);
+    ctx->graphics->DrawImage(bitmap, (Gdiplus::REAL)x, (Gdiplus::REAL)y, (Gdiplus::REAL)width, (Gdiplus::REAL)height);
 }
 
 /*---------------------------------------------------------------------------*/

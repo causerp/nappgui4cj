@@ -7,11 +7,11 @@ foreign {
 
     func respack_packed(name: CString, locale: CString): CPointer<Unit>
 
-    func respack_add_msg(pack: ResPack, msg: CString): Unit
+    func respack_add_msg(pack: CPointer<Unit>, msg: CString): Unit
 
-    func respack_add_cdata(pack: ResPack, resType: ResType, data: CPointer<UInt8>, data_size: UInt32): Unit
+    func respack_add_cdata(pack: CPointer<Unit>, resType: ResType, data: CPointer<UInt8>, data_size: UInt32): Unit
 
-    func respack_object_imp(pack: ResPack, id: CString, func_create: CPointer<Unit>, func_destroy: CPointer<Unit>): CPointer<Unit>
+    func respack_object_imp(pack: CPointer<Unit>, id: CString, func_create: CPointer<Unit>, func_destroy: CPointer<Unit>): CPointer<Unit>
 
     func respack_aobj_imp(packs: CPointer<Unit>, id: CString, func_create: CPointer<Unit>, func_destroy: CPointer<Unit>,
         is_resid: CPointer<Bool>): CPointer<Unit>
@@ -20,12 +20,11 @@ foreign {
 
     func respack_afile(packs: CPointer<Unit>, id: CString, size: CPointer<UInt32>, is_resid: CPointer<Bool>): CPointer<Unit>
 
-    // Public API
     func respack_destroy(pack: CPointer<CPointer<Unit>>): Unit
 
-    func respack_text(pack: ResPack, id: CString): CString
+    func respack_text(pack: CPointer<Unit>, id: CString): CString
 
-    func respack_file(pack: ResPack, id: CString, size: CPointer<UInt32>): CPointer<UInt8>
+    func respack_file(pack: CPointer<Unit>, id: CString, size: CPointer<UInt32>): CPointer<UInt8>
 }
 
 @CEnum[public ResType UInt32](
@@ -37,40 +36,45 @@ foreign {
 // inout VArray parameters can only be called in @C functions and not from inside classes.
 
 @C
-public func resPackAddMsg(pack: ResPack, msg: CPointer<UInt8>): Unit {
+public func resPackAddMsg(pack: CPointer<Unit>, msg: CPointer<UInt8>): Unit {
     unsafe { respack_add_msg(pack, CString(msg)) }
 }
 
 @C
-public func resPackAddCData(pack: ResPack, resType: ResType, data: CPointer<UInt8>, dataSize: UInt32): Unit {
+public func resPackAddCData(pack: CPointer<Unit>, resType: ResType, data: CPointer<UInt8>, dataSize: UInt32): Unit {
     unsafe { respack_add_cdata(pack, resType, data, dataSize) }
 }
 
-@C
-public struct ResPack {
-    private var m_handle: CPointer<Unit>
+public enum ResPackType {
+    | ResEmbedded(String)
+    | ResPacked(String, String)
+}
 
-    private init(handle: CPointer<Unit>) {
+public struct ResPack <: NappObject {
+    var m_handle: CPointer<Unit>
+
+    public init(handle: CPointer<Unit>) {
         m_handle = handle
     }
 
-    public static func createEmbedded(name: String): ResPack {
-        unsafe {
-            let namePtr = LibC.mallocCString(name)
-            let handle = respack_embedded(namePtr)
-            LibC.free(namePtr)
-            return ResPack(handle)
-        }
+    public init(name: String) {
+        this(ResEmbedded(name))
     }
 
-    public static func createPacked(name: String, locale: String): ResPack {
+    public init(resPackType: ResPackType) {
         unsafe {
-            let namePtr = LibC.mallocCString(name)
-            let localePtr = LibC.mallocCString(locale)
-            let handle = respack_packed(namePtr, localePtr)
-            LibC.free(namePtr)
-            LibC.free(localePtr)
-            return ResPack(handle)
+            match (resPackType) {
+                case ResEmbedded(name) =>
+                    let namePtr = LibC.mallocCString(name)
+                    m_handle = respack_embedded(namePtr)
+                    LibC.free(namePtr)
+                case ResPacked(name, locale) =>
+                    let namePtr = LibC.mallocCString(name)
+                    let localePtr = LibC.mallocCString(locale)
+                    m_handle = respack_packed(namePtr, localePtr)
+                    LibC.free(namePtr)
+                    LibC.free(localePtr)
+            }
         }
     }
 
@@ -82,16 +86,27 @@ public struct ResPack {
         }
     }
 
+    public prop handle: CPointer<Unit> {
+        get() {
+            m_handle
+        }
+    }
+
+
+    // typedef void *(*FPtr_from_data)(const byte_t *data, const uint32_t size);
+    // typedef void (*FPtr_destroy)(void **item);
+
+
     public func objectImp(id: ResId, funcCreate: CPointer<Unit>, funcDestroy: CPointer<Unit>): CPointer<Unit> {
         unsafe {
-            let obj = respack_object_imp(this, id.cStr, funcCreate, funcDestroy)
+            let obj = respack_object_imp(m_handle, id.cStr, funcCreate, funcDestroy)
             obj
         }
     }
 
-    public func text(id: ResId): ?String {
+    public func getText(id: ResId): ?String {
         unsafe {
-            let strPtr = respack_text(this, id.cStr)
+            let strPtr = respack_text(m_handle, id.cStr)
             return match (strPtr.isNull()) {
                 case false => strPtr.toString()
                 case true => None
@@ -99,13 +114,28 @@ public struct ResPack {
         }
     }
 
-    public func file(id: ResId, size: Box<UInt32>): ?CPointer<UInt8> {
+    public func getFile(id: ResId): ?(dataPtr: CPointer<UInt8>, size: UInt32) {
         unsafe {
             var dataSize = 0u32
-            let dataPtr = respack_file(this, id.cStr, inout dataSize)
-            size.value = dataSize
+            let dataPtr = respack_file(m_handle, id.cStr, inout dataSize)
             return match (dataPtr.isNull()) {
-                case false => dataPtr
+                case false => (dataPtr, dataSize)
+                case true => None
+            }
+        }
+    }
+
+    public func getFileAsArray(id: ResId): ?Array<Byte> {
+        unsafe {
+            var dataSize = 0u32
+            let dataPtr = respack_file(m_handle, id.cStr, inout dataSize)
+            return match (dataPtr.isNull()) {
+                case false =>
+                    let arr = Array<Byte>(Int64(dataSize), repeat: 0)
+                    let rawData = acquireArrayRawData(arr)
+                    memcpy_s(rawData.pointer, UIntNative(dataSize), dataPtr, UIntNative(dataSize))
+                    releaseArrayRawData(rawData)
+                    arr
                 case true => None
             }
         }

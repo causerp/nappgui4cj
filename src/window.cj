@@ -1,11 +1,13 @@
 package nappgui4cj
 
+import nappgui4cj.macros.EventHandler
+
 foreign {
     func window_create(flags: WindowFlag): CPointer<Unit>
 
     func window_destroy(window: CPointer<CPointer<Unit>>): Unit
 
-    func window_panel(window: CPointer<Unit>, panel: Panel): Unit
+    func window_panel(window: CPointer<Unit>, panel: CPointer<Unit>): Unit
 
     func window_title(window: CPointer<Unit>, text: CString): Unit
 
@@ -45,25 +47,28 @@ foreign {
 
     func window_stop_modal(window: CPointer<Unit>, return_value: UInt32): Unit
 
-    func window_defbutton(window: CPointer<Unit>, button: Button): Unit
+    func window_defbutton(window: CPointer<Unit>, button: CPointer<Unit>): Unit
 }
 
-@C
-public struct Window {
-    private var m_handle: CPointer<Unit> = CPointer()
+public struct Window <: NappObject {
+    var m_handle: CPointer<Unit>
 
-    public init() {}
-
-    private init(handle: CPointer<Unit>) {
+    public init(handle: CPointer<Unit>) {
         m_handle = handle
     }
 
-    public static func create(flags: WindowFlag): Window {
-        Window(unsafe { window_create(flags) })
+    public init(flags: WindowFlag) {
+        m_handle = unsafe { window_create(flags) }
     }
 
     public mut func destroy(): Unit {
         unsafe { window_destroy(inout m_handle) }
+    }
+
+    public prop handle: CPointer<Unit> {
+        get() {
+            m_handle
+        }
     }
 
     public func isNull(): Bool {
@@ -85,7 +90,7 @@ public struct Window {
     }
 
     public func setPanel(panel: Panel): Unit {
-        unsafe { window_panel(m_handle, panel) }
+        unsafe { window_panel(m_handle, panel.m_handle) }
     }
 
     public func show(): Unit {
@@ -148,22 +153,13 @@ public struct Window {
         unsafe { window_stop_modal(m_handle, returnValue) }
     }
 
-    public func setDefaultButton(button: Button): Unit {
-        unsafe { window_defbutton(m_handle, button) } // Button implicitly converts to CPointer<Unit>
+    public func setDefaultButton(button: ?Button): Unit {
+        unsafe { window_defbutton(m_handle, button?.m_handle ?? CPointer()) }
     }
 
-    public func onClose<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { window_OnClose(m_handle, listener) }
-    }
+    @EventHandler(window_OnClose)
 
-    public func onMoved<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { window_OnMoved(m_handle, listener) }
-    }
+    @EventHandler(window_OnMoved)
 
-    public func onResize<T>(function: EventHandlerFunc<T>, obj!: CPointer<T> = CPointer()): Unit where T <: CType {
-        let listener = Listener.create<T>(obj, function)
-        unsafe { window_OnResize(m_handle, listener) }
-    }
+    @EventHandler(window_OnResize)
 }

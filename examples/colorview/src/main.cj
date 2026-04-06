@@ -28,9 +28,9 @@ class App <: Resource {
     var font: Font
 
     private init() {
-        window = Window.create(WindowFlag.StdRes)
+        window = Window(WindowFlag.StdRes)
         view = View()
-        font = Font.createSystem(Font.regularSize, 0)
+        font = Font(FntSystem, Font.regularSize, FStyle.Normal)
         items = getColors()
     }
 
@@ -105,8 +105,8 @@ class App <: Resource {
 
 @C
 func onDraw(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvDraw>() ?? return
     let app = App.get()
-    let params = e.getParams<EvDraw>()
 
     let ctx = params.ctx
     let width = params.width
@@ -144,8 +144,8 @@ func onDraw(_: CPointer<Unit>, e: Event): Unit {
 
 @C
 func onSize(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSize>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSize>()
 
     let view = app.view
     let minWidth = ITEM_WIDTH + 2.0 * HOR_MARGIN

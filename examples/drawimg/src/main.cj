@@ -19,8 +19,8 @@ class App <: Resource {
     var exp_alpha: Bool = false
 
     private init() {
-        window = Window.create(WindowFlag.Std)
-        font = Font.createSystem(25.0, 0)
+        window = Window(WindowFlag.Std)
+        font = Font(FntSystem, 25.0, FStyle.Normal)
         view = View()
         iview = ImageView()
         res = 0
@@ -77,7 +77,7 @@ func drawContent(ctx: DCtx, t2d_global: T2Df, font: Font): Unit {
         V2Df(344.0, 144.0)
     ]
 
-    var pack = unsafe { resdrawimgResPack(CString(CPointer())) }
+    var pack = resdrawimgResPack("")
     let image1 = Image(pack, MONKEY_PNG)
     let image2 = Image(pack, ZOMBIE_PNG)
 
@@ -141,13 +141,13 @@ func exportPng(): Unit {
     let h: UInt32 = 400
     let wi = w / 4
 
-    var palette = Palette.create(4)
+    var palette = Palette(4)
     palette.setColor(0, Color(255, 0, 0, 255))
     palette.setColor(1, Color(0, 255, 0, 170))
     palette.setColor(2, Color(0, 0, 255, 85))
     palette.setColor(3, Color(255, 255, 255, 1))
 
-    var pixbuf = Pixbuf.create(w, h, PixFormat.Index2)
+    var pixbuf = Pixbuf(w, h, PixFormat.Index2)
 
     for (i in 0..w) {
         var idx: UInt32 = 3
@@ -175,7 +175,7 @@ func exportPng(): Unit {
 func createExportLayout(): Layout {
     let layout = Layout(2, 1)
     let edit = Edit()
-    let button = Button.createPush()
+    let button = Button(BtnPush)
     button.setText("Open")
     layout.add(edit, 0, 0)
     layout.add(button, 1, 0)
@@ -184,11 +184,11 @@ func createExportLayout(): Layout {
 
 func createBppLayout(): Layout {
     let layout = Layout(1, 5)
-    let button1 = Button.createRadio()
-    let button2 = Button.createRadio()
-    let button3 = Button.createRadio()
-    let button4 = Button.createRadio()
-    let button5 = Button.createRadio()
+    let button1 = Button(BtnRadio)
+    let button2 = Button(BtnRadio)
+    let button3 = Button(BtnRadio)
+    let button4 = Button(BtnRadio)
+    let button5 = Button(BtnRadio)
 
     button1.setText("1 bpp (2 colors)")
     button2.setText("2 bpp (4 colors)")
@@ -204,8 +204,8 @@ func createBppLayout(): Layout {
     return layout
 }
 
-func createExportWindow(app: App): Window {
-    let window = Window.create(WindowFlag.Title | WindowFlag.Close)
+func createExportWindow(): Window {
+    let window = Window(WindowFlag.Title | WindowFlag.Close)
     let panel = Panel()
     let layout1 = Layout(3, 4)
     let layout2 = createExportLayout()
@@ -216,9 +216,9 @@ func createExportWindow(app: App): Window {
     let label3 = Label()
     let label4 = Label()
     let popup = PopUp()
-    let button1 = Button.createCheck()
-    let button2 = Button.createPush()
-    let button3 = Button.createPush()
+    let button1 = Button(BtnCheck)
+    let button2 = Button(BtnPush)
+    let button3 = Button(BtnPush)
 
     label1.setText("File name:")
     label2.setText("Format:")
@@ -247,14 +247,14 @@ func createExportWindow(app: App): Window {
     return window
 }
 
-func createImgLayout(app: App): Layout {
+func createImgLayout(): Layout {
     let layout = Layout(7, 1)
     let label = Label()
-    let button1 = Button.createRadio()
-    let button2 = Button.createRadio()
-    let button3 = Button.createRadio()
-    let button4 = Button.createRadio()
-    let button5 = Button.createPush()
+    let button1 = Button(BtnRadio)
+    let button2 = Button(BtnRadio)
+    let button3 = Button(BtnRadio)
+    let button4 = Button(BtnRadio)
+    let button5 = Button(BtnPush)
 
     label.setText("Image context:")
     button1.setText("600x400")
@@ -283,13 +283,13 @@ func createImgLayout(app: App): Layout {
     return layout
 }
 
-func createWinLayout(app: App): Layout {
+func createWinLayout(): Layout {
     let layout = Layout(5, 1)
     let label1 = Label()
     let label2 = Label()
     let label3 = Label()
-    let slider1 = Slider()
-    let slider2 = Slider()
+    let slider1 = Slider(SlHorizontal)
+    let slider2 = Slider(SlHorizontal)
 
     label1.setText("Window context: 600x400")
     label2.setText("Angle:")
@@ -317,8 +317,8 @@ func createWinLayout(app: App): Layout {
 func createPanel(app: App): Panel {
     let panel = Panel()
     let layout1 = Layout(2, 2)
-    let layout2 = createWinLayout(app)
-    let layout3 = createImgLayout(app)
+    let layout2 = createWinLayout()
+    let layout3 = createImgLayout()
 
     app.view.setSize(S2Df(600.0, 400.0))
     app.iview.setSize(S2Df(600.0, 400.0))
@@ -343,34 +343,34 @@ func createPanel(app: App): Panel {
 
 @C
 func onDraw(_: CPointer<Unit>, e: Event): Unit {
+    let ctx = e.getParams<EvDraw>()?.ctx ?? return
     let app = App.get()
-    let params = e.getParams<EvDraw>()
 
     var t2d = T2Df().rotate(app.angle).scale(app.scale, 1.0)
-    params.ctx.clear(Color(200, 200, 200))
-    drawContent(params.ctx, t2d, app.font)
+    ctx.clear(Color(200, 200, 200))
+    drawContent(ctx, t2d, app.font)
 }
 
 @C
 func onResolution(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvButton>() ?? return
     let app = App.get()
-    let params = e.getParams<EvButton>()
     app.res = params.index
     drawImg(app)
 }
 
 @C
 func onAngle(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSlider>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSlider>()
     app.angle = (params.pos - 0.5) * Float32.getPI()
     app.view.update()
 }
 
 @C
 func onScale(_: CPointer<Unit>, e: Event): Unit {
+    let params = e.getParams<EvSlider>() ?? return
     let app = App.get()
-    let params = e.getParams<EvSlider>()
     app.scale = params.pos + 0.5
     app.view.update()
 }
@@ -378,7 +378,7 @@ func onScale(_: CPointer<Unit>, e: Event): Unit {
 @C
 func onExport(_: CPointer<Unit>, _: Event): Unit {
     let app = App.get()
-    var expwin = createExportWindow(app)
+    var expwin = createExportWindow()
     app.expwin = expwin
 
     let p0 = app.window.getOrigin()
@@ -398,13 +398,13 @@ func onExport(_: CPointer<Unit>, _: Event): Unit {
 }
 
 @C
-func onExportOk(_: CPointer<Unit>, e: Event): Unit {
+func onExportOk(_: CPointer<Unit>, _: Event): Unit {
     let app = App.get()
     app.expwin?.stopModal(1)
 }
 
 @C
-func onExportCancel(_: CPointer<Unit>, e: Event): Unit {
+func onExportCancel(_: CPointer<Unit>, _: Event): Unit {
     let app = App.get()
     app.expwin?.stopModal(0)
 }

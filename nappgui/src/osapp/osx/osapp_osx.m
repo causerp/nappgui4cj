@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -251,6 +251,8 @@ OSApp *_osapp_init_imp(
     unref(with_run_loop);
     app = [NSApplication sharedApplication];
     cassert(app == NSApp);
+    [app setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [app activateIgnoringOtherApps:YES];
     delegate = [OSXAppDelegate alloc];
     delegate->argc = argc;
     delegate->argv = argv;

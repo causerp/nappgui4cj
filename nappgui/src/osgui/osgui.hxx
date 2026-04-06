@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -29,6 +29,7 @@ typedef struct _osweb_t OSWeb;
 typedef struct _osview_t OSView;
 typedef struct _ossplit_t OSSplit;
 typedef struct _ospanel_t OSPanel;
+typedef struct _osline_t OSLine;
 typedef struct _oswindow_t OSWindow;
 typedef struct _osmenu_t OSMenu;
 typedef struct _osmenuitem_t OSMenuItem;

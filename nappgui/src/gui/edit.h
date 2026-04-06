@@ -1,6 +1,6 @@
 /*
  * NAppGUI Cross-platform C SDK
- * 2015-2025 Francisco Garcia Collado
+ * 2015-2026 Francisco Garcia Collado
  * MIT Licence
  * https://nappgui.com/en/legal/license.html
  *
@@ -25,9 +25,9 @@ _gui_api void edit_OnChange(Edit *edit, Listener *listener);
 
 _gui_api void edit_OnFocus(Edit *edit, Listener *listener);
 
-_gui_api void edit_min_width(Edit *edit, const real32_t width);
+_gui_api void edit_width(Edit *edit, const real32_t width);
 
-_gui_api void edit_min_height(Edit *edit, const real32_t height);
+_gui_api void edit_height(Edit *edit, const real32_t height);
 
 _gui_api void edit_text(Edit *edit, const char_t *text);
 
