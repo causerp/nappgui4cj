@@ -118,7 +118,7 @@ public struct ResPack <: NappObject {
         unsafe {
             var dataSize = 0u32
             let dataPtr = respack_file(m_handle, id.cStr, inout dataSize)
-            return match (dataPtr.isNull()) {
+            return match (dataPtr.isNull() || dataSize <= 0) {
                 case false => (dataPtr, dataSize)
                 case true => None
             }

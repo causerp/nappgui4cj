@@ -37,10 +37,17 @@ public struct Event {
     }
 
     public func getSender<T>(typeName!: ?String = None): ?T where T <: CType {
-        let ptr = getSenderPtr<T>(typeName: typeName)
-        return match (ptr.isNotNull()) {
-            case true => unsafe { ptr.read() }
-            case false => None
+        unsafe {
+            let typeNamePtr = match (typeName) {
+                case Some(typeName) => LibC.mallocCString(typeName)
+                case None => CString(CPointer())
+            }
+            let ptr = event_sender_imp(handle, typeNamePtr)
+            LibC.free(typeNamePtr)
+            return match (ptr.isNotNull()) {
+                case true => CPointer<T>(ptr).read()
+                case false => None<T>
+            }
         }
     }
 
@@ -57,10 +64,17 @@ public struct Event {
     }
 
     public func getParams<T>(typeName!: ?String = None): ?T where T <: CType {
-        let ptr = getParamsPtr<T>(typeName: typeName)
-        return match (ptr.isNotNull()) {
-            case true => unsafe { ptr.read() }
-            case false => None
+        unsafe {
+            let typeNamePtr = match (typeName) {
+                case Some(typeName) => LibC.mallocCString(typeName)
+                case None => CString(CPointer())
+            }
+            let ptr = event_params_imp(handle, typeNamePtr)
+            LibC.free(typeNamePtr)
+            return match (ptr.isNotNull()) {
+                case true => CPointer<T>(ptr).read()
+                case false => None<T>
+            }
         }
     }
 
@@ -77,10 +91,17 @@ public struct Event {
     }
 
     public func getResult<T>(typeName!: ?String = None): ?T where T <: CType {
-        let ptr = getResultPtr<T>(typeName: typeName)
-        return match (ptr.isNotNull()) {
-            case true => unsafe { ptr.read() }
-            case false => None
+        unsafe {
+            let typeNamePtr = match (typeName) {
+                case Some(typeName) => LibC.mallocCString(typeName)
+                case None => CString(CPointer())
+            }
+            let ptr = event_result_imp(handle, typeNamePtr)
+            LibC.free(typeNamePtr)
+            return match (ptr.isNotNull()) {
+                case true => CPointer<T>(ptr).read()
+                case false => None<T>
+            }
         }
     }
 
@@ -98,18 +119,27 @@ public struct Event {
 
     public func setResult<T>(value: T, typeName!: ?String = None): Unit where T <: CType {
         unsafe {
-            let ptr = getResultPtr<T>(typeName: typeName)
+            let typeNamePtr = match (typeName) {
+                case Some(typeName) => LibC.mallocCString(typeName)
+                case None => CString(CPointer())
+            }
+            let ptr = event_result_imp(handle, typeNamePtr)
+            LibC.free(typeNamePtr)
             if (ptr.isNotNull()) {
-                ptr.write(value)
+                CPointer<T>(ptr).write(value)
             }
         }
     }
 
     public func getBindObj<T>(typeName!: String): ?T where T <: CType {
-        let ptr = getBindObjPtr<T>(typeName: typeName)
-        return match (ptr.isNotNull()) {
-            case true => unsafe { ptr.read() }
-            case false => None
+        unsafe {
+            let typeNamePtr = LibC.mallocCString(typeName)
+            let ptr = evbind_object_imp(handle, typeNamePtr)
+            LibC.free(typeNamePtr)
+            return match (ptr.isNotNull()) {
+                case true => CPointer<T>(ptr).read()
+                case false => None
+            }
         }
     }
 

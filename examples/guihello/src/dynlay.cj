@@ -5,8 +5,8 @@ import std.random.Random
 
 private let rand = Random()
 
-class DynApp {
-    private static var m_app: ?DynApp = None
+private class AppData {
+    private static var m_data: ?AppData = None
 
     var topLayout: Layout
     var bottomLayout: Layout
@@ -32,23 +32,22 @@ class DynApp {
         ]
     }
 
-    static func get(): DynApp {
-        match (m_app) {
-            case Some(app) => return app
-            case None =>
-                let app = DynApp()
-                m_app = app
-                return app
+    static func get(recreate!: Bool = false): AppData {
+        if (recreate) {
+            m_data = None
         }
-    }
-
-    static func destroy(): Unit {
-        m_app = None
+        match (m_data) {
+            case Some(data) => return data
+            case None =>
+                let data = AppData()
+                m_data = data
+                return data
+        }
     }
 }
 
 private func topLayoutMargins(): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let ncols = app.topLayout.numCols()
     let nrows = app.topLayout.numRows()
 
@@ -66,7 +65,7 @@ private func topLayoutMargins(): Unit {
 }
 
 private func bottomLayoutMargins(): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let nrows = app.bottomLayout.numRows()
 
     if (nrows > 1) {
@@ -79,7 +78,7 @@ private func bottomLayoutMargins(): Unit {
 @C
 private func onVMargin(_: CPointer<Unit>, e: Event): Unit {
     let params = e.getParams<EvButton>() ?? return
-    let app = DynApp.get()
+    let app = AppData.get()
     if (params.index == 1 && app.vmargin > 0) {
         app.vmargin -= 1
     } else if (params.index == 0) {
@@ -92,7 +91,7 @@ private func onVMargin(_: CPointer<Unit>, e: Event): Unit {
 @C
 private func onHMargin(_: CPointer<Unit>, e: Event): Unit {
     let params = e.getParams<EvButton>() ?? return
-    let app = DynApp.get()
+    let app = AppData.get()
     if (params.index == 1 && app.hmargin > 0) {
         app.hmargin -= 1
     } else if (params.index == 0) {
@@ -134,7 +133,7 @@ private func controlLayout1(): Layout {
 
 @C
 private func onSlider(_: CPointer<Unit>, e: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let slider = Slider(e.getSenderPtr())
     let tag = slider.getTag()
     let col = tag & 0x0000FFFF
@@ -257,7 +256,7 @@ private func getStockText(row: UInt32): String {
 }
 
 private func fillSublayout(layout: Layout, row: UInt32): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let layout1 = Layout(3, 1)
     let layout2 = Layout(1, 4)
     let view = ImageView()
@@ -297,7 +296,7 @@ private func fillSublayout(layout: Layout, row: UInt32): Unit {
 
 @C
 private func onTopAddCol(_: CPointer<Unit>, _: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let ncols = app.topLayout.numCols()
 
     app.topLayout.insertCol(ncols - 1)
@@ -308,7 +307,7 @@ private func onTopAddCol(_: CPointer<Unit>, _: Event): Unit {
 
 @C
 private func onTopDelCol(_: CPointer<Unit>, _: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let ncols = app.topLayout.numCols()
 
     if (ncols > 3) {
@@ -320,7 +319,7 @@ private func onTopDelCol(_: CPointer<Unit>, _: Event): Unit {
 
 @C
 private func onTopAddRow(_: CPointer<Unit>, _: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let nrows = app.topLayout.numRows()
 
     app.topLayout.insertRow(nrows)
@@ -331,7 +330,7 @@ private func onTopAddRow(_: CPointer<Unit>, _: Event): Unit {
 
 @C
 private func onTopDelRow(_: CPointer<Unit>, _: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let nrows = app.topLayout.numRows()
 
     if (nrows > 2) {
@@ -343,7 +342,7 @@ private func onTopDelRow(_: CPointer<Unit>, _: Event): Unit {
 
 @C
 private func onTopAddLayout(_: CPointer<Unit>, _: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let nrows = app.bottomLayout.numRows()
 
     app.bottomLayout.insertRow(nrows)
@@ -354,7 +353,7 @@ private func onTopAddLayout(_: CPointer<Unit>, _: Event): Unit {
 
 @C
 private func onTopDelLayout(_: CPointer<Unit>, _: Event): Unit {
-    let app = DynApp.get()
+    let app = AppData.get()
     let nrows = app.bottomLayout.numRows()
 
     if (nrows > 1) {
@@ -453,7 +452,7 @@ private func controlLayout(): Layout {
 }
 
 private func buildTopLayout(): Layout {
-    let app = DynApp.get()
+    let app = AppData.get()
     fillRow(app.topLayout, 0)
     fillRow(app.topLayout, 1)
     fillRow(app.topLayout, 2)
@@ -462,7 +461,7 @@ private func buildTopLayout(): Layout {
 }
 
 private func buildBottomLayout(): Layout {
-    let app = DynApp.get()
+    let app = AppData.get()
     fillSublayout(app.bottomLayout, 0)
     fillSublayout(app.bottomLayout, 1)
     fillSublayout(app.bottomLayout, 2)
@@ -482,6 +481,7 @@ private func buildBottomLayout(): Layout {
  *
  */
 func dynlayPanel(): Panel {
+    let _ = AppData.get(recreate: true)
     let panel = Panel(hscroll: true, vscroll: true)
     let layout = Layout(1, 4)
     let controlLayoutVal = controlLayout()
